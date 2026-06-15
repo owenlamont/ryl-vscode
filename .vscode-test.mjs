@@ -2,7 +2,7 @@ import { defineConfig } from "@vscode/test-cli";
 
 export default defineConfig({
   // Only the assertion suite; the demo montage (out/test/demo) is recorded
-  // separately via scripts/record-demo.sh and must not run in CI.
+  // separately via scripts/record_demo.py and must not run in CI.
   files: "out/test/suite/**/*.test.js",
   workspaceFolder: "src/test/fixtures",
   // Treat the fixture workspace as trusted so the binary resolver uses PATH ryl

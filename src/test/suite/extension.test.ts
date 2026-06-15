@@ -8,6 +8,13 @@ import * as vscode from "vscode";
 const SAMPLE = "name: ryl-vscode   \nitems:\n  - alpha\n  - beta\n";
 // An anchor and the alias that references it, for the rename test.
 const ANCHOR_SAMPLE = "default: &settings\n  key: value\nprod: *settings\n";
+// A fenced ```yaml block whose embedded line has trailing spaces, for the
+// Markdown-embedding test (the fixture config opts in via `[files].markdown`).
+const MARKDOWN_SAMPLE = "# Notes\n\n```yaml\nkey: value   \n```\n";
+// Trailing-space violations in BOTH front matter and a fenced block, for the
+// "both sources disabled" test (lives under md-disabled/, whose config turns both
+// `[markdown]` sources off, so neither violation may be flagged).
+const MARKDOWN_BOTH_REGIONS = "---\ntitle: x   \n---\n\n# Doc\n\n```yaml\nkey: value   \n```\n";
 
 suite("ryl-vscode end-to-end", () => {
   const created: vscode.Uri[] = [];
@@ -18,10 +25,14 @@ suite("ryl-vscode end-to-end", () => {
     }
   });
 
-  async function openFreshSample(name: string, content = SAMPLE): Promise<vscode.TextDocument> {
+  async function openFreshSample(
+    name: string,
+    content = SAMPLE,
+    ext = "yaml",
+  ): Promise<vscode.TextDocument> {
     const folder = vscode.workspace.workspaceFolders?.[0];
     assert.ok(folder, "expected the fixtures directory as the workspace folder");
-    const uri = vscode.Uri.joinPath(folder.uri, `${name}.generated.yaml`);
+    const uri = vscode.Uri.joinPath(folder.uri, `${name}.generated.${ext}`);
     fs.writeFileSync(uri.fsPath, content);
     created.push(uri);
     const doc = await vscode.workspace.openTextDocument(uri);
@@ -37,6 +48,29 @@ suite("ryl-vscode end-to-end", () => {
     assert.ok(
       diagnostics.every((d) => d.source === "ryl"),
       "every diagnostic should be sourced from ryl",
+    );
+  });
+
+  // Regression guard for ryl#323 (fixed in ryl 0.18.1): `ryl server` used to both
+  // push (textDocument/publishDiagnostics) and serve pull (textDocument/diagnostic),
+  // and vscode-languageclient keeps the two in separate DiagnosticCollections, so
+  // every diagnostic appeared twice. The server now emits a single model per client.
+  test("reports each diagnostic once (no push/pull duplication)", async function () {
+    this.timeout(60000);
+    const doc = await openFreshSample("no-duplicates");
+    await waitForRylDiagnostics(doc.uri);
+    // Let both diagnostic channels settle so a regression that reintroduces the
+    // duplication is seen in the merged set, not an intermediate single-channel one.
+    await waitFor(() => false, 750);
+    const diagnostics = vscode.languages.getDiagnostics(doc.uri).filter((d) => d.source === "ryl");
+    const keys = diagnostics.map(
+      (d) =>
+        `${d.range.start.line}:${d.range.start.character}-${d.range.end.line}:${d.range.end.character}|${d.message}`,
+    );
+    assert.strictEqual(
+      new Set(keys).size,
+      diagnostics.length,
+      `each ryl diagnostic should appear once; duplicates among: ${JSON.stringify(keys)}`,
     );
   });
 
@@ -106,6 +140,35 @@ suite("ryl-vscode end-to-end", () => {
     assert.ok(
       edits.every((textEdit) => textEdit.newText.includes("renamed")),
       "both edits should apply the new anchor name",
+    );
+  });
+
+  test("lints and fixes YAML embedded in a Markdown fenced block", async function () {
+    this.timeout(60000);
+    const doc = await openFreshSample("embedded", MARKDOWN_SAMPLE, "md");
+    const diagnostics = await waitForRylDiagnostics(doc.uri);
+    assert.ok(diagnostics.length > 0, "expected ryl diagnostics for the embedded YAML");
+    // fix-all must work on Markdown too (the guards allow it, the server fixes the block).
+    await vscode.commands.executeCommand("ryl.fixAll");
+    await waitFor(() => !/[ \t]$/m.test(doc.getText()));
+    assert.ok(
+      !/[ \t]$/m.test(doc.getText()),
+      "fix-all should clear the embedded trailing whitespace in the Markdown file",
+    );
+  });
+
+  test("does not flag Markdown when both embedded sources are disabled", async function () {
+    this.timeout(60000);
+    // The fixture has a violation in both front matter and a fenced block, but the
+    // nearer md-disabled/.ryl.toml turns both `[markdown]` sources off, so a
+    // forwarded Markdown document must produce no ryl diagnostics in either place.
+    const doc = await openFreshSample("md-disabled/both-off", MARKDOWN_BOTH_REGIONS, "md");
+    await waitFor(() => false, 1500); // settle; a diagnostic would have arrived by now
+    const diagnostics = vscode.languages.getDiagnostics(doc.uri).filter((d) => d.source === "ryl");
+    assert.strictEqual(
+      diagnostics.length,
+      0,
+      `expected no ryl diagnostics, got: ${JSON.stringify(diagnostics.map((d) => d.message))}`,
     );
   });
 });

@@ -16,7 +16,9 @@ hooks = [
   { id = "check-json" },
   { id = "check-toml" },
   { id = "check-yaml" },
-  { id = "check-added-large-files" },
+  # Keep the 500 KB default, but exempt the two committed demo GIFs in images/
+  # (which exceed it) rather than raising the limit for every file.
+  { id = "check-added-large-files", exclude = '^images/demo-(yaml|markdown)\.gif$' },
   { id = "no-commit-to-branch", args = ["--branch", "main"] },
   { id = "mixed-line-ending", args = ["--fix=lf"] },
 ]

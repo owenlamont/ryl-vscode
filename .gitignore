@@ -148,9 +148,10 @@ bundled/
 # Packaged extensions
 *.vsix
 
-# Fixture/montage content written at test runtime
-src/test/fixtures/*.generated.*
+# Fixture/montage content written at test runtime (incl. fixture subdirectories)
+src/test/fixtures/**/*.generated.*
 src/test/demo-workspace/*.generated.*
 
-# Demo recording artifacts (scripts/record-demo.sh)
-demo/
+# Demo recording artifacts (scripts/record_demo.py). Anchored to the repo root so
+# it does not also swallow the montage source under src/test/demo/.
+/demo/

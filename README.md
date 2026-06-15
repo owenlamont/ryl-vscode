@@ -9,10 +9,22 @@ A platform-specific build of ryl is bundled with the extension, so it works with
 no separate install. If you already have ryl on your `PATH` or in a project
 environment, the extension uses that instead (see [How ryl is located](#how-ryl-is-located)).
 
+**Lint and auto-fix YAML as you type:**
+
+![ryl linting and auto-fixing YAML in VS Code](https://raw.githubusercontent.com/owenlamont/ryl-vscode/main/images/demo-yaml.gif)
+
+**...including YAML embedded in Markdown front matter and fenced blocks:**
+
+![ryl linting YAML embedded in a Markdown file](https://raw.githubusercontent.com/owenlamont/ryl-vscode/main/images/demo-markdown.gif)
+
 ## Features
 
 - **Live diagnostics.** YAML files are linted as you type, with squiggles that
   clear as you fix them.
+- **YAML in Markdown.** When your ryl config opts in (`[files].markdown`), front
+  matter and fenced ```yaml blocks in Markdown files are linted too, with
+  diagnostics mapped back to the Markdown file. Markdown supports live
+  diagnostics, hover, and fix-all (per-line disable and rename stay YAML-only).
 - **Fix all.** Apply every safe ryl fix to a document via the `ryl.fixAll`
   command, the `source.fixAll.ryl` code action, or on save.
 - **Formatting.** ryl advertises a document formatter, so you can set it as the

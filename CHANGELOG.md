@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Lint YAML embedded in Markdown (front matter and fenced ```yaml blocks) in the
+  editor: Markdown files are forwarded to `ryl server`, which lints them when the
+  ryl config opts in via `[files].markdown`. Live diagnostics, hover, and fix-all
+  work on Markdown; per-line disable and rename remain YAML-only.
 - Initial extension: a thin client over `ryl server` (ryl's language server)
   providing live diagnostics, fix-all, document formatting, hover, anchor/alias
   rename, and disable-rule quick fixes for YAML files.

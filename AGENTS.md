@@ -69,14 +69,33 @@ Keep the client thin: if a feature can be done in the server, it belongs there.
 
 ## Demo recording
 
-`npm run demo` (scripts/record-demo.sh) records the feature-tour GIF/MP4 used in
-release media. It runs the montage (src/test/demo/montage.test.ts) against
-src/test/demo-workspace on a headless Xvfb display and captures it with ffmpeg's
-x11grab, writing demo/demo.mp4 and demo/demo.gif. The montage signals when the
-workbench is ready (so capture opens on a clean editor) and blackdetect trims the
-tail. Prerequisites (Linux): `xvfb` plus an x11grab-capable ffmpeg at
-`/usr/bin/ffmpeg` (the apt build; the pixi ffmpeg lacks x11grab). Demo-only, not
+`npm run demo` (= `uv run scripts/record_demo.py`) records the feature-tour
+GIFs/MP4s used in release media. It compiles and runs the montage
+(src/test/demo/montage.test.ts) against src/test/demo-workspace in a real VS Code
+instance, screen-captures it with ffmpeg, then blackdetect-trims and encodes one
+clip **per scenario**: `demo/demo-yaml.{mp4,gif}` (plain YAML) and
+`demo/demo-markdown.{mp4,gif}` (YAML in a fenced Markdown block). The recorder
+runs the montage once per scenario via `RYL_DEMO_SCENARIO`; the montage signals
+when the workbench is ready so capture opens on a clean editor. Demo-only: not
 shipped in the VSIX or run in CI.
+
+It is a uv-runnable PEP 723 script (stdlib only) so it works cross-platform. The
+screen-capture device is OS-specific:
+
+| OS | ffmpeg device | Headless? | Notes |
+|----|---------------|-----------|-------|
+| Linux | `x11grab` | yes (Xvfb) | needs `Xvfb`; capture is fully off-screen |
+| Windows | `gdigrab` | no | captures the VS Code window by title; a real window appears for ~20s, do not click into it |
+| macOS | `avfoundation` | no | captures a whole display (no per-window grab); grant the terminal Screen Recording permission and have VS Code maximised |
+
+Prerequisites: `uv`, plus an ffmpeg/ffprobe whose build includes the platform's
+capture device (verify with `ffmpeg -devices`). On Linux the pixi/conda ffmpeg
+lacks `x11grab`, so the script prefers `/usr/bin/ffmpeg` (the apt build); set
+`FFMPEG`/`FFPROBE` to override. Tunables via env: `WIDTH`/`HEIGHT`/`FPS`,
+`DISPLAY_NUM` (Linux), `RYL_DEMO_WINDOW` (Windows window title),
+`RYL_DEMO_AVF_INPUT` (macOS avfoundation input index). Only the Linux path is
+verified in this environment; the Windows/macOS paths follow ffmpeg's documented
+device syntax and should be validated on those OSes.
 
 ## Binary Resolution
 

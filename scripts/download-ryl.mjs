@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 
 // Pinned ryl version. Bump in lockstep with the binary you intend to ship, then
 // regenerate the checksums (see --update-checksums).
-const RYL_VERSION = "0.18.0";
+const RYL_VERSION = "0.18.1";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const BUNDLED_DIR = path.join(SCRIPT_DIR, "..", "bundled");

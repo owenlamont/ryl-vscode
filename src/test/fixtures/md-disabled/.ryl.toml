@@ -1,0 +1,12 @@
+# Nearer config for the "both embedded sources disabled" E2E test: Markdown is a
+# linted source kind, a rule is enabled, but both `[markdown]` sources are off, so
+# a .md here must produce no diagnostics even though its content has violations.
+[files]
+markdown = ["*.md"]
+
+[rules]
+trailing-spaces = "enable"
+
+[markdown]
+front-matter = false
+fenced-blocks = false

@@ -54,6 +54,11 @@ export async function startServer(): Promise<LanguageClient | undefined> {
     documentSelector: [
       { scheme: "file", language: "yaml" },
       { scheme: "untitled", language: "yaml" },
+      // Markdown is forwarded so the server can lint embedded YAML (front matter
+      // and fenced ```yaml blocks). The server stays silent unless the resolved
+      // ryl config opts in via `[files].markdown`, so this is quiet by default.
+      { scheme: "file", language: "markdown" },
+      { scheme: "untitled", language: "markdown" },
     ],
     outputChannel: getServerChannel(),
     traceOutputChannel: tracing ? getTraceChannel() : undefined,

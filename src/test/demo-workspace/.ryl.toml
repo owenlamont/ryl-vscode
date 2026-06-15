@@ -2,6 +2,7 @@
 # enabled, so `ryl.fixAll` reflows the typed sample to a fully clean document.
 [files]
 yaml = ["*.yaml", "*.yml"]
+markdown = ["*.md"]
 
 [rules]
 trailing-spaces = "enable"
@@ -13,3 +14,16 @@ max-spaces-inside = 1
 
 [rules.brackets]
 max-spaces-inside = 1
+
+[rules.quoted-strings]
+quote-type = "double"
+required = "only-when-needed"
+
+[rules.comments]
+require-starting-space = true
+
+[rules.empty-lines]
+max = 1
+
+[rules.document-start]
+present = true

@@ -4,6 +4,7 @@
 
 [files]
 yaml = ["*.yaml", "*.yml"]
+markdown = ["*.md"]
 
 [rules]
 trailing-spaces = "enable"

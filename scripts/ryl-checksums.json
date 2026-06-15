@@ -1,11 +1,11 @@
 {
-  "version": "0.18.0",
+  "version": "0.18.1",
   "assets": {
-    "ryl-aarch64-apple-darwin.tar.gz": "0f7a2cda50e150054388c9baa177ccef12e32945ef315b60b19fc61e3ea33e32",
-    "ryl-aarch64-pc-windows-msvc.zip": "2914050cce381b813d20807654a010ed1c92c05b50fccd7debd6863ba3ae98cc",
-    "ryl-aarch64-unknown-linux-musl.tar.gz": "52fa279831105c2bcc4e035a100b03a1d15eeffc83c5f5e93a4ec2c9ea032a4c",
-    "ryl-armv7-unknown-linux-gnueabihf.tar.gz": "135674346ed7a77dd0e0c2c2b179b4121c72facab6ac10cd30a3beb340e84151",
-    "ryl-x86_64-pc-windows-msvc.zip": "60c184b48b55951889da7ed817df6ab2c9bc4e568c403b646e65667723714640",
-    "ryl-x86_64-unknown-linux-musl.tar.gz": "5a82559f40982ba5d2149d8a22264924eadcf43ae3e9c2537d0ab3b9a0fdf39d"
+    "ryl-aarch64-apple-darwin.tar.gz": "526486a1642c4a79438e9e8e69c4e829904024138931f9f7415a78aaed336952",
+    "ryl-aarch64-pc-windows-msvc.zip": "9e221771bccb39faca6b077f85f3bff5c18462561645b11bc8f1f109928a3525",
+    "ryl-aarch64-unknown-linux-musl.tar.gz": "145987f79f6ae4063530671549adf6d77fae74aab1fcfc6289e74e9775441dcf",
+    "ryl-armv7-unknown-linux-gnueabihf.tar.gz": "a4033069bb8a859e880e3f9258aab04f39ffb5beba3b2bc83f7420e1b13db42a",
+    "ryl-x86_64-pc-windows-msvc.zip": "1a45f217c38e303cfe437da39716259545a105f808be4ac9798e3d91413ec41c",
+    "ryl-x86_64-unknown-linux-musl.tar.gz": "4ec8bd26035d2030dcdf3869f2a4bf7f75076aadbeebb27e59410290d2873bab"
   }
 }
