@@ -2,7 +2,7 @@
   "name": "ryl",
   "displayName": "ryl - YAML Linter",
   "description": "Fast Rust-based YAML linter with real-time diagnostics, auto-fix, and formatting, powered by the ryl language server.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "owenlamont",
   "license": "MIT",
   "author": {
