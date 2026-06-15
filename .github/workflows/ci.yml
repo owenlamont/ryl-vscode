@@ -25,9 +25,9 @@ jobs:
           cache: npm
       # The local `tsc` prek hook runs `npm run check-types`, so deps are needed.
       - run: npm ci
+      # No uv cache: uv only installs prek here (no Python project to key on);
+      # the prek hook environments are cached below.
       - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v6
-        with:
-          enable-cache: true
       - name: Cache prek hook environments
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v4
         with:
