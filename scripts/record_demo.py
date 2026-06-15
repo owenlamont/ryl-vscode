@@ -5,8 +5,9 @@
 #
 # [tool.uv]
 # # One-week dependency cooldown (rolling): ignore releases newer than one week
-# # before each run as a supply-chain-safety buffer.
-# exclude-newer = "1 week ago"
+# # before each run as a supply-chain-safety buffer. "1 week" is uv's documented
+# # friendly-duration form ("1 week ago" is rejected by older uv).
+# exclude-newer = "1 week"
 # ///
 
 """Record the ryl-vscode feature-tour demos (``demo/demo-<scenario>.{mp4,gif}``).

@@ -90,12 +90,13 @@ screen-capture device is OS-specific:
 
 Prerequisites: `uv`, plus an ffmpeg/ffprobe whose build includes the platform's
 capture device (verify with `ffmpeg -devices`). On Linux the pixi/conda ffmpeg
-lacks `x11grab`, so the script prefers `/usr/bin/ffmpeg` (the apt build); set
-`FFMPEG`/`FFPROBE` to override. Tunables via env: `WIDTH`/`HEIGHT`/`FPS`,
-`DISPLAY_NUM` (Linux), `RYL_DEMO_WINDOW` (Windows window title),
-`RYL_DEMO_AVF_INPUT` (macOS avfoundation input index). Only the Linux path is
-verified in this environment; the Windows/macOS paths follow ffmpeg's documented
-device syntax and should be validated on those OSes.
+lacks `x11grab`, so the script prefers `/usr/bin/ffmpeg` (the apt build) automatically;
+override it with `--ffmpeg`/`--ffprobe` if needed. All settings are Typer options
+(`--width`/`--height`/`--fps`, `--display-num`, `--window-title`, `--avf-input`,
+`--ffmpeg`/`--ffprobe`, `--scenario`); run `uv run scripts/record_demo.py --help` for
+the full list, and pass them through npm with `npm run demo -- --ffmpeg /usr/bin/ffmpeg`.
+Only the Linux path is verified in this environment; the Windows/macOS paths follow
+ffmpeg's documented device syntax and should be validated on those OSes.
 
 ## Binary Resolution
 
