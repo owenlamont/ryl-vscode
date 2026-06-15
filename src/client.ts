@@ -54,6 +54,12 @@ export async function startServer(): Promise<LanguageClient | undefined> {
     documentSelector: [
       { scheme: "file", language: "yaml" },
       { scheme: "untitled", language: "yaml" },
+      // Markdown is forwarded so the server can lint embedded YAML (front matter
+      // and fenced ```yaml blocks). File scheme only: an untitled buffer has no
+      // path, so the server resolves it as raw YAML (not embedded Markdown) and
+      // would lint a Markdown document as YAML, corrupting it on fix. The server
+      // stays silent unless the resolved ryl config opts in via `[files].markdown`.
+      { scheme: "file", language: "markdown" },
     ],
     outputChannel: getServerChannel(),
     traceOutputChannel: tracing ? getTraceChannel() : undefined,

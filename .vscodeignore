@@ -1,27 +1,12 @@
-# Everything here is excluded from the published .vsix.
-# What ships: dist/extension.js (bundled), bundled/ (the ryl binary),
-# images/icon.png, README.md, CHANGELOG.md, LICENSE, package.json.
-.github/**
-.vscode/**
-.vscode-test/**
-.vscode-test.mjs
-src/**
-out/**
-scripts/**
-**/*.ts
-**/*.map
-node_modules/**
-esbuild.mjs
-biome.json
-tsconfig.json
-prek.toml
-typos.toml
-rumdl.toml
-.ryl.toml
-.editorconfig
-.gitignore
-.gitattributes
-**/.DS_Store
-*.vsix
-AGENTS.md
-CLAUDE.md
+# Whitelist (fail-closed): ignore everything, then re-include only what ships in
+# the .vsix. vsce reads only .vscodeignore, so a whitelist is expressed by
+# ignoring `**` and negating with `!` (matching the include-list style preferred
+# in the main ryl repo). New files never ship unless added here.
+**
+!package.json
+!README.md
+!CHANGELOG.md
+!LICENSE
+!dist/extension.js
+!images/icon.png
+!bundled/**

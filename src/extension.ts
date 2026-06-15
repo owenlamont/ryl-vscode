@@ -8,6 +8,13 @@ import { getSettings } from "./settings";
 // source.fixAll.<other> can never be applied by ryl.fixAll / fixOnSave.
 const RYL_FIX_ALL = vscode.CodeActionKind.SourceFixAll.append("ryl");
 
+// The document languages ryl handles: YAML, plus Markdown (embedded YAML). The
+// server gates Markdown on config, so fix-all is offered for both and the server
+// returns no edit when there is nothing to fix.
+function isRylDocument(document: vscode.TextDocument): boolean {
+  return document.languageId === "yaml" || document.languageId === "markdown";
+}
+
 let client: LanguageClient | undefined;
 let restartInProgress = false;
 let restartQueued = false;
@@ -92,7 +99,7 @@ async function runServer(): Promise<void> {
 function handleWillSave(event: vscode.TextDocumentWillSaveEvent): void {
   const document = event.document;
   // Skip when no server is running so save is never blocked on a no-op request.
-  if (!client || document.languageId !== "yaml" || !getSettings(document).fixOnSave) {
+  if (!client || !isRylDocument(document) || !getSettings(document).fixOnSave) {
     return;
   }
   event.waitUntil(computeFixAllEdits(document));
@@ -100,7 +107,7 @@ function handleWillSave(event: vscode.TextDocumentWillSaveEvent): void {
 
 async function fixAllActiveEditor(): Promise<void> {
   const editor = vscode.window.activeTextEditor;
-  if (editor?.document.languageId !== "yaml") {
+  if (!editor || !isRylDocument(editor.document)) {
     return;
   }
   const edits = await computeFixAllEdits(editor.document);

@@ -2,7 +2,7 @@
   "name": "ryl",
   "displayName": "ryl - YAML Linter",
   "description": "Fast Rust-based YAML linter with real-time diagnostics, auto-fix, and formatting, powered by the ryl language server.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "owenlamont",
   "license": "MIT",
   "author": {
@@ -54,6 +54,7 @@
   ],
   "activationEvents": [
     "onLanguage:yaml",
+    "onLanguage:markdown",
     "workspaceContains:**/*.yaml",
     "workspaceContains:**/*.yml"
   ],
@@ -138,7 +139,7 @@
       "commandPalette": [
         {
           "command": "ryl.fixAll",
-          "when": "editorLangId == yaml"
+          "when": "editorLangId == yaml || editorLangId == markdown"
         }
       ]
     }
@@ -153,6 +154,7 @@
     "compile-tests": "tsc -p . --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run check-types",
     "test": "vscode-test",
+    "demo": "uv run scripts/record_demo.py",
     "download-ryl": "node scripts/download-ryl.mjs",
     "package": "node esbuild.mjs --production"
   },

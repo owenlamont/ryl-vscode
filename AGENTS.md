@@ -67,11 +67,45 @@ Keep the client thin: if a feature can be done in the server, it belongs there.
   `DISPLAY` (WSLg) or xvfb, and needs `ryl` resolvable (the suite uses
   `--disable-workspace-trust` so the resolver reaches PATH or the bundled binary).
 
+## Demo recording
+
+`npm run demo` (= `uv run scripts/record_demo.py`) records the feature-tour
+GIFs/MP4s used in release media. It compiles and runs the montage
+(src/test/demo/montage.test.ts) against src/test/demo-workspace in a real VS Code
+instance, screen-captures it with ffmpeg, then blackdetect-trims and encodes one
+clip **per scenario**: `demo/demo-yaml.{mp4,gif}` (plain YAML) and
+`demo/demo-markdown.{mp4,gif}` (YAML in a fenced Markdown block). The recorder
+runs the montage once per scenario via `RYL_DEMO_SCENARIO`; the montage signals
+when the workbench is ready so capture opens on a clean editor. Demo-only: not
+shipped in the VSIX or run in CI.
+
+It is a uv-runnable PEP 723 script (stdlib only) so it works cross-platform. The
+screen-capture device is OS-specific:
+
+| OS | ffmpeg device | Headless? | Notes |
+|----|---------------|-----------|-------|
+| Linux | `x11grab` | yes (Xvfb) | needs `Xvfb`; capture is fully off-screen |
+| Windows | `gdigrab` | no | captures the whole desktop (`-i desktop`); gdigrab cannot read the GPU/DWM-composited VS Code window per-title (it yields all-black frames), so maximize VS Code on a clean desktop; a real window appears for ~20s, do not click into it |
+| macOS | `avfoundation` | no | captures a whole display (no per-window grab); grant the terminal Screen Recording permission and have VS Code maximised |
+
+Prerequisites: `uv`, plus an ffmpeg/ffprobe whose build includes the platform's
+capture device (verify with `ffmpeg -devices`). On Linux the pixi/conda ffmpeg
+lacks `x11grab`, so the script prefers `/usr/bin/ffmpeg` (the apt build) automatically;
+override it with `--ffmpeg`/`--ffprobe` if needed. All settings are Typer options
+(`--width`/`--height`/`--fps`, `--display-num`, `--avf-input`,
+`--ffmpeg`/`--ffprobe`, `--scenario`); run `uv run scripts/record_demo.py --help` for
+the full list, and pass them through npm with `npm run demo -- --ffmpeg /usr/bin/ffmpeg`.
+The Linux and Windows paths are verified; the macOS path follows ffmpeg's documented
+device syntax and should be validated on a Mac.
+
 ## Binary Resolution
 
 `resolveRylPath` (src/binary.ts) tries, in order: untrusted workspace -> bundled;
 `ryl.path`; `importStrategy: useBundled`; workspace `.venv`/`venv`; system `PATH`;
-bundled binary; bare `ryl`.
+bundled binary; bare `ryl`. An environment ryl (venv/PATH) is used only if
+`ryl --version` is at or above the `ryl server` floor (0.18.0); an older one is
+skipped for the bundled binary (warned once), so a stale global ryl cannot
+silently break the language server.
 
 ## VS Code Extension Best Practices (gotchas to preserve)
 

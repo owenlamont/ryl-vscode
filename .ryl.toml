@@ -1,4 +1,5 @@
-# ryl dogfoods itself on this repo's YAML (GitHub workflows, dependabot, etc.).
+# ryl dogfoods itself on this repo's YAML and Markdown-embedded YAML (GitHub
+# workflows, dependabot, and fenced ```yaml blocks / front matter in docs).
 # Mirrors the rule selection used in the ryl repo's own .ryl.toml.
 
 # E2E fixtures deliberately contain lint violations to exercise the extension.
@@ -6,6 +7,7 @@ ignore = ["src/test/fixtures/"]
 
 [files]
 yaml = ["*.yaml", "*.yml"]
+markdown = ["*.md"]
 
 [rules]
 anchors = "enable"

@@ -16,7 +16,9 @@ hooks = [
   { id = "check-json" },
   { id = "check-toml" },
   { id = "check-yaml" },
-  { id = "check-added-large-files" },
+  # Keep the 500 KB default, but exempt the two committed demo GIFs in images/
+  # (which exceed it) rather than raising the limit for every file.
+  { id = "check-added-large-files", exclude = '^images/demo-(yaml|markdown)\.gif$' },
   { id = "no-commit-to-branch", args = ["--branch", "main"] },
   { id = "mixed-line-ending", args = ["--fix=lf"] },
 ]
@@ -29,8 +31,16 @@ hooks = [
 ]
 
 [[repos]]
+repo = "https://github.com/charliermarsh/ruff-pre-commit"
+rev = "v0.15.16"
+hooks = [
+  { id = "ruff-check", args = ["--fix", "--exit-non-zero-on-fix", "--show-fixes"], types_or = ["python", "pyi"] },
+  { id = "ruff-format", types_or = ["python", "pyi"] },
+]
+
+[[repos]]
 repo = "https://github.com/owenlamont/ryl-pre-commit"
-rev = "v0.18.0"
+rev = "v0.18.1"
 hooks = [
   { id = "ryl", args = ["--fix"] },
 ]
