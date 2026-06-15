@@ -127,10 +127,20 @@ def resolve_ffmpeg(device: str, override: str | None) -> str:
 
 
 def resolve_ffprobe(override: str | None) -> str:
-    for candidate in (override, shutil.which("ffprobe"), "/usr/bin/ffprobe"):
-        if candidate and Path(candidate).exists():
-            return candidate
-    return require("ffprobe")
+    # Mirror resolve_ffmpeg: resolve a bare-name override via PATH (not only a
+    # literal file), and gate the /usr/bin fallback to Linux.
+    candidates = [override, shutil.which("ffprobe")]
+    if sys.platform == "linux":
+        candidates.append("/usr/bin/ffprobe")
+    for candidate in candidates:
+        exe = (
+            candidate
+            if candidate and Path(candidate).exists()
+            else shutil.which(candidate or "")
+        )
+        if exe:
+            return exe
+    raise fail("ffprobe not found on PATH; pass --ffprobe")
 
 
 def capture_command(settings: Settings, raw: Path) -> list[str]:
@@ -161,7 +171,10 @@ def capture_command(settings: Settings, raw: Path) -> list[str]:
             *encode,
         ]
     if settings.device == "gdigrab":
-        # Capture just the VS Code window; its size is whatever VS Code opened at.
+        # Capture the VS Code window by title (the demo workspace pins
+        # `window.title` to `--window-title`). UNVERIFIED on Windows: the Extension
+        # Development Host may prefix the title, so the exact match can miss — if so,
+        # set --window-title to the real title or switch this to `-i desktop`.
         return [
             *base,
             "-f",
@@ -393,7 +406,7 @@ def main(
     ] = "99",
     window_title: Annotated[
         str, typer.Option(help="VS Code window title to capture (Windows gdigrab).")
-    ] = "Extension Development Host",
+    ] = "ryl demo",
     avf_input: Annotated[
         str, typer.Option(help="avfoundation input device (macOS).")
     ] = "Capture screen 0",
