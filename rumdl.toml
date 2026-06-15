@@ -1,0 +1,12 @@
+line-length = 88
+disable = []
+# CLAUDE.md is just an `@AGENTS.md` import, so it has no level-1 heading.
+exclude = ["CLAUDE.md"]
+respect-gitignore = true
+
+[MD013]
+line_length = 88
+code_blocks = false
+tables = false
+headings = true
+strict = false

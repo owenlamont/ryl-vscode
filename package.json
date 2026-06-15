@@ -1,0 +1,176 @@
+{
+  "name": "ryl",
+  "displayName": "ryl - YAML Linter",
+  "description": "Fast Rust-based YAML linter with real-time diagnostics, auto-fix, and formatting, powered by the ryl language server.",
+  "version": "0.1.0",
+  "publisher": "owenlamont",
+  "license": "MIT",
+  "author": {
+    "name": "Owen Lamont"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/owenlamont/ryl-vscode.git"
+  },
+  "bugs": {
+    "url": "https://github.com/owenlamont/ryl-vscode/issues"
+  },
+  "homepage": "https://github.com/owenlamont/ryl-vscode#readme",
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.82.0"
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "ryl runs a local executable. In untrusted workspaces it uses only the binary bundled with this extension and ignores workspace-configured executable and config paths.",
+      "restrictedConfigurations": [
+        "ryl.path",
+        "ryl.configPath"
+      ]
+    },
+    "virtualWorkspaces": {
+      "supported": false,
+      "description": "ryl is not supported in virtual workspaces because it runs as a local executable over the file system."
+    }
+  },
+  "categories": [
+    "Linters",
+    "Formatters"
+  ],
+  "keywords": [
+    "yaml",
+    "linter",
+    "rust",
+    "yamllint",
+    "auto-fix",
+    "formatter",
+    "diagnostics",
+    "lsp"
+  ],
+  "activationEvents": [
+    "onLanguage:yaml",
+    "workspaceContains:**/*.yaml",
+    "workspaceContains:**/*.yml"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "ryl",
+      "properties": {
+        "ryl.enable": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Enable the ryl language server. When disabled, linting stops and existing diagnostics are cleared."
+        },
+        "ryl.path": {
+          "type": "string",
+          "scope": "machine-overridable",
+          "markdownDescription": "Path to the `ryl` executable. When empty, ryl is resolved in order from the workspace virtual environment (`.venv`/`venv`), the system `PATH`, then the binary bundled with this extension. A leading `~` expands to your home directory; a relative path resolves against the first workspace folder."
+        },
+        "ryl.importStrategy": {
+          "type": "string",
+          "enum": [
+            "fromEnvironment",
+            "useBundled"
+          ],
+          "enumDescriptions": [
+            "Prefer the ryl found in your environment (workspace or PATH), falling back to the bundled binary.",
+            "Always use the ryl binary bundled with this extension, ignoring any environment installation."
+          ],
+          "default": "fromEnvironment",
+          "scope": "resource",
+          "markdownDescription": "Whether to prefer the `ryl` found in your environment or always use the version bundled with this extension. Ignored when `#ryl.path#` is set."
+        },
+        "ryl.configPath": {
+          "type": "string",
+          "scope": "resource",
+          "markdownDescription": "Path to a ryl configuration file (`ryl.toml`, `.ryl.toml`, or a yamllint-style config). When empty, ryl discovers configuration from the workspace as it would on the command line."
+        },
+        "ryl.fixOnSave": {
+          "type": "boolean",
+          "default": false,
+          "scope": "resource",
+          "markdownDescription": "Apply all ryl safe fixes when saving a YAML file. For finer control, prefer `\"editor.codeActionsOnSave\": { \"source.fixAll.ryl\": \"explicit\" }`."
+        },
+        "ryl.trace.server": {
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "scope": "window",
+          "description": "Trace the communication between VS Code and the ryl language server."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "ryl.restart",
+        "title": "Restart Server",
+        "category": "ryl"
+      },
+      {
+        "command": "ryl.fixAll",
+        "title": "Fix all auto-fixable problems",
+        "category": "ryl"
+      },
+      {
+        "command": "ryl.showClientLogs",
+        "title": "Show client logs",
+        "category": "ryl"
+      },
+      {
+        "command": "ryl.showServerLogs",
+        "title": "Show server logs",
+        "category": "ryl"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "ryl.fixAll",
+          "when": "editorLangId == yaml"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run check-types && node esbuild.mjs --production",
+    "compile": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "check-types": "tsc --noEmit",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "compile-tests": "tsc -p . --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run check-types",
+    "test": "vscode-test",
+    "download-ryl": "node scripts/download-ryl.mjs",
+    "package": "node esbuild.mjs --production"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1",
+    "which": "^7.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.0.0",
+    "@types/vscode": "1.82.0",
+    "@types/which": "^3.0.4",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^3.0.0",
+    "@vscode/vsce": "^3.9.2",
+    "esbuild": "^0.28.1",
+    "ovsx": "^1.0.1",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,54 @@
+# ryl dogfoods itself on this repo's YAML (GitHub workflows, dependabot, etc.).
+# Mirrors the rule selection used in the ryl repo's own .ryl.toml.
+
+# E2E fixtures deliberately contain lint violations to exercise the extension.
+ignore = ["src/test/fixtures/"]
+
+[files]
+yaml = ["*.yaml", "*.yml"]
+
+[rules]
+anchors = "enable"
+block-scalar-chomping = "enable"
+comments = "disable"
+comments-indentation = "disable"
+document-end = "disable"
+document-start = "disable"
+empty-values = "disable"
+float-values = "disable"
+key-duplicates = "enable"
+key-ordering = "disable"
+line-length = "disable"
+merge-keys = "enable"
+new-line-at-end-of-file = "enable"
+new-lines = "enable"
+octal-values = "disable"
+quoted-strings = "disable"
+tags = "enable"
+trailing-spaces = "enable"
+truthy = "disable"
+unicode-line-breaks = "enable"
+
+[rules.braces]
+level = "warning"
+max-spaces-inside = 1
+
+[rules.brackets]
+level = "warning"
+max-spaces-inside = 1
+
+[rules.colons]
+level = "warning"
+
+[rules.commas]
+level = "warning"
+
+[rules.empty-lines]
+level = "warning"
+
+[rules.hyphens]
+level = "warning"
+
+[rules.indentation]
+indent-sequences = "consistent"
+level = "warning"

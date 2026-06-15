@@ -1,0 +1,27 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      npm:
+        patterns: ["*"]
+    ignore:
+      # @types/vscode must match engines.vscode (the compatibility floor for
+      # Cursor/VSCodium); bump deliberately, not via Dependabot.
+      - dependency-name: "@types/vscode"
+      # vscode-languageclient v10 raises the VS Code floor to 1.91; review majors.
+      - dependency-name: "vscode-languageclient"
+        update-types: ["version-update:semver-major"]
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ["*"]
