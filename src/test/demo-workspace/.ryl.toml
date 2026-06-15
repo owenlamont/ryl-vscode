@@ -1,0 +1,15 @@
+# Demo workspace for scripts/record-demo.sh. Only safe-fixable rules are
+# enabled, so `ryl.fixAll` reflows the typed sample to a fully clean document.
+[files]
+yaml = ["*.yaml", "*.yml"]
+
+[rules]
+trailing-spaces = "enable"
+new-line-at-end-of-file = "enable"
+commas = "enable"
+
+[rules.braces]
+max-spaces-inside = 1
+
+[rules.brackets]
+max-spaces-inside = 1

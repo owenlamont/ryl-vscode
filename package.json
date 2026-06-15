@@ -153,6 +153,7 @@
     "compile-tests": "tsc -p . --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run check-types",
     "test": "vscode-test",
+    "demo": "bash scripts/record-demo.sh",
     "download-ryl": "node scripts/download-ryl.mjs",
     "package": "node esbuild.mjs --production"
   },

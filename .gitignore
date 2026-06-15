@@ -148,5 +148,9 @@ bundled/
 # Packaged extensions
 *.vsix
 
-# E2E fixture content written at test runtime
+# Fixture/montage content written at test runtime
 src/test/fixtures/*.generated.*
+src/test/demo-workspace/*.generated.*
+
+# Demo recording artifacts (scripts/record-demo.sh)
+demo/

@@ -67,6 +67,17 @@ Keep the client thin: if a feature can be done in the server, it belongs there.
   `DISPLAY` (WSLg) or xvfb, and needs `ryl` resolvable (the suite uses
   `--disable-workspace-trust` so the resolver reaches PATH or the bundled binary).
 
+## Demo recording
+
+`npm run demo` (scripts/record-demo.sh) records the feature-tour GIF/MP4 used in
+release media. It runs the montage (src/test/demo/montage.test.ts) against
+src/test/demo-workspace on a headless Xvfb display and captures it with ffmpeg's
+x11grab, writing demo/demo.mp4 and demo/demo.gif. The montage signals when the
+workbench is ready (so capture opens on a clean editor) and blackdetect trims the
+tail. Prerequisites (Linux): `xvfb` plus an x11grab-capable ffmpeg at
+`/usr/bin/ffmpeg` (the apt build; the pixi ffmpeg lacks x11grab). Demo-only, not
+shipped in the VSIX or run in CI.
+
 ## Binary Resolution
 
 `resolveRylPath` (src/binary.ts) tries, in order: untrusted workspace -> bundled;
