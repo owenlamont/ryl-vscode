@@ -155,7 +155,9 @@ def capture_command(settings: Settings, raw: Path) -> list[str]:
         str(raw),
     ]
     if settings.device == "x11grab":
-        # Xvfb is exactly width x height, so the frame is already even-sized.
+        # Xvfb is exactly width x height (already even for the 1280x800 default),
+        # but scale to even dims anyway so an odd --width/--height still satisfies
+        # yuv420p, matching the gdigrab/avfoundation branches.
         return [
             *base,
             "-f",
@@ -168,6 +170,8 @@ def capture_command(settings: Settings, raw: Path) -> list[str]:
             str(settings.fps),
             "-i",
             f":{settings.display_num}",
+            "-vf",
+            EVEN_DIMS,
             *encode,
         ]
     if settings.device == "gdigrab":
