@@ -31,8 +31,16 @@ hooks = [
 ]
 
 [[repos]]
+repo = "https://github.com/charliermarsh/ruff-pre-commit"
+rev = "v0.15.16"
+hooks = [
+  { id = "ruff-check", args = ["--fix", "--exit-non-zero-on-fix", "--show-fixes"], types_or = ["python", "pyi"] },
+  { id = "ruff-format", types_or = ["python", "pyi"] },
+]
+
+[[repos]]
 repo = "https://github.com/owenlamont/ryl-pre-commit"
-rev = "v0.18.0"
+rev = "v0.18.1"
 hooks = [
   { id = "ryl", args = ["--fix"] },
 ]
