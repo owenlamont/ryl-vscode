@@ -85,18 +85,18 @@ screen-capture device is OS-specific:
 | OS | ffmpeg device | Headless? | Notes |
 |----|---------------|-----------|-------|
 | Linux | `x11grab` | yes (Xvfb) | needs `Xvfb`; capture is fully off-screen |
-| Windows | `gdigrab` | no | captures the VS Code window by title; a real window appears for ~20s, do not click into it |
+| Windows | `gdigrab` | no | captures the whole desktop (`-i desktop`); gdigrab cannot read the GPU/DWM-composited VS Code window per-title (it yields all-black frames), so maximize VS Code on a clean desktop; a real window appears for ~20s, do not click into it |
 | macOS | `avfoundation` | no | captures a whole display (no per-window grab); grant the terminal Screen Recording permission and have VS Code maximised |
 
 Prerequisites: `uv`, plus an ffmpeg/ffprobe whose build includes the platform's
 capture device (verify with `ffmpeg -devices`). On Linux the pixi/conda ffmpeg
 lacks `x11grab`, so the script prefers `/usr/bin/ffmpeg` (the apt build) automatically;
 override it with `--ffmpeg`/`--ffprobe` if needed. All settings are Typer options
-(`--width`/`--height`/`--fps`, `--display-num`, `--window-title`, `--avf-input`,
+(`--width`/`--height`/`--fps`, `--display-num`, `--avf-input`,
 `--ffmpeg`/`--ffprobe`, `--scenario`); run `uv run scripts/record_demo.py --help` for
 the full list, and pass them through npm with `npm run demo -- --ffmpeg /usr/bin/ffmpeg`.
-Only the Linux path is verified in this environment; the Windows/macOS paths follow
-ffmpeg's documented device syntax and should be validated on those OSes.
+The Linux and Windows paths are verified; the macOS path follows ffmpeg's documented
+device syntax and should be validated on a Mac.
 
 ## Binary Resolution
 

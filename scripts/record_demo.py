@@ -16,8 +16,9 @@ Drives the montage (``src/test/demo/montage.test.ts``) through a real VS Code
 instance once per scenario (YAML, then YAML-in-Markdown) and screen-captures each
 to its own clip. Capture is OS-specific because ffmpeg's screen-grab device
 differs per platform: ``x11grab`` against a headless Xvfb display on Linux,
-``gdigrab`` against the VS Code window on Windows, and ``avfoundation`` against a
-display on macOS (the latter two show a real window during the recording).
+``gdigrab`` against the whole desktop on Windows, and ``avfoundation`` against a
+display on macOS (the latter two capture the real screen during the recording, so
+VS Code must be maximized on a clean desktop).
 
 Demo-only: not shipped in the ``.vsix`` or run in CI. See the "Demo recording"
 section of AGENTS.md for prerequisites (ffmpeg with the right capture device,
@@ -66,7 +67,6 @@ class Settings:
     height: int
     fps: int
     display_num: str
-    window_title: str
     avf_input: str
     ready: Path
 
@@ -171,10 +171,13 @@ def capture_command(settings: Settings, raw: Path) -> list[str]:
             *encode,
         ]
     if settings.device == "gdigrab":
-        # Capture the VS Code window by title (the demo workspace pins
-        # `window.title` to `--window-title`). UNVERIFIED on Windows: the Extension
-        # Development Host may prefix the title, so the exact match can miss — if so,
-        # set --window-title to the real title or switch this to `-i desktop`.
+        # Capture the whole desktop, like the macOS avfoundation path below.
+        # Verified on Windows 11: gdigrab cannot read VS Code's window per-title
+        # (`title=...`) because the Electron window is GPU/DWM-composited, so a
+        # window grab yields all-black frames (even with `--disable-gpu`); a full
+        # desktop grab reads the composited screen and works. So have VS Code
+        # maximized on a clean desktop (`-i desktop` grabs the entire virtual
+        # desktop, all monitors included).
         return [
             *base,
             "-f",
@@ -184,7 +187,7 @@ def capture_command(settings: Settings, raw: Path) -> list[str]:
             "-framerate",
             str(settings.fps),
             "-i",
-            f"title={settings.window_title}",
+            "desktop",
             "-vf",
             EVEN_DIMS,
             *encode,
@@ -404,9 +407,6 @@ def main(
     display_num: Annotated[
         str, typer.Option(help="Xvfb display number (Linux).")
     ] = "99",
-    window_title: Annotated[
-        str, typer.Option(help="VS Code window title to capture (Windows gdigrab).")
-    ] = "ryl demo",
     avf_input: Annotated[
         str, typer.Option(help="avfoundation input device (macOS).")
     ] = "Capture screen 0",
@@ -434,7 +434,6 @@ def main(
         height=height,
         fps=fps,
         display_num=display_num,
-        window_title=window_title,
         avf_input=avf_input,
         ready=Path(tempfile.gettempdir()) / "ryl-demo-ready",
     )
