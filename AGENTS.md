@@ -102,7 +102,10 @@ device syntax and should be validated on a Mac.
 
 `resolveRylPath` (src/binary.ts) tries, in order: untrusted workspace -> bundled;
 `ryl.path`; `importStrategy: useBundled`; workspace `.venv`/`venv`; system `PATH`;
-bundled binary; bare `ryl`.
+bundled binary; bare `ryl`. An environment ryl (venv/PATH) is used only if
+`ryl --version` is at or above the `ryl server` floor (0.18.0); an older one is
+skipped for the bundled binary (warned once), so a stale global ryl cannot
+silently break the language server.
 
 ## VS Code Extension Best Practices (gotchas to preserve)
 
