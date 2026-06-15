@@ -18,7 +18,11 @@ jobs:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
+      # uv only installs prek here, so disable its cache (default is auto-on for
+      # hosted runners, which warns about no lockfile to key on).
       - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v6
+        with:
+          enable-cache: false
       - name: Install prek
         run: uv tool install prek
       # npm dependencies are handled by Dependabot; this refreshes the prek hook
