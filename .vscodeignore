@@ -1,0 +1,27 @@
+# Everything here is excluded from the published .vsix.
+# What ships: dist/extension.js (bundled), bundled/ (the ryl binary),
+# images/icon.png, README.md, CHANGELOG.md, LICENSE, package.json.
+.github/**
+.vscode/**
+.vscode-test/**
+.vscode-test.mjs
+src/**
+out/**
+scripts/**
+**/*.ts
+**/*.map
+node_modules/**
+esbuild.mjs
+biome.json
+tsconfig.json
+prek.toml
+typos.toml
+rumdl.toml
+.ryl.toml
+.editorconfig
+.gitignore
+.gitattributes
+**/.DS_Store
+*.vsix
+AGENTS.md
+CLAUDE.md

@@ -1,0 +1,74 @@
+# Configuration file for `prek`, a git hook framework written in Rust.
+# See https://prek.j178.dev for more information.
+#:schema https://www.schemastore.org/prek.json
+
+[[repos]]
+repo = "https://github.com/pre-commit/pre-commit-hooks"
+rev = "v6.0.0"
+hooks = [
+  { id = "trailing-whitespace" },
+  { id = "end-of-file-fixer" },
+  { id = "check-case-conflict" },
+  { id = "check-illegal-windows-names" },
+  { id = "check-merge-conflict" },
+  { id = "check-symlinks" },
+  { id = "destroyed-symlinks" },
+  { id = "check-json" },
+  { id = "check-toml" },
+  { id = "check-yaml" },
+  { id = "check-added-large-files" },
+  { id = "no-commit-to-branch", args = ["--branch", "main"] },
+  { id = "mixed-line-ending", args = ["--fix=lf"] },
+]
+
+[[repos]]
+repo = "https://github.com/biomejs/pre-commit"
+rev = "v2.5.0"
+hooks = [
+  { id = "biome-check", additional_dependencies = ["@biomejs/biome@2.5.0"] },
+]
+
+[[repos]]
+repo = "https://github.com/owenlamont/ryl-pre-commit"
+rev = "v0.18.0"
+hooks = [
+  { id = "ryl", args = ["--fix"] },
+]
+
+[[repos]]
+repo = "https://github.com/rvben/rumdl-pre-commit"
+rev = "v0.2.16"
+hooks = [
+  { id = "rumdl" },
+]
+
+[[repos]]
+repo = "https://github.com/adhtruong/mirrors-typos"
+rev = "v1.47.2"
+hooks = [
+  { id = "typos", args = ["--force-exclude"] },
+]
+
+[[repos]]
+repo = "https://github.com/woodruffw/zizmor-pre-commit"
+rev = "v1.25.2"
+hooks = [
+  {
+    id = "zizmor",
+    args = ["--min-severity", "low", "--min-confidence", "medium", "."],
+    pass_filenames = false,
+  },
+]
+
+[[repos]]
+repo = "local"
+hooks = [
+  {
+    id = "tsc",
+    name = "tsc --noEmit",
+    language = "system",
+    entry = "npm run check-types",
+    files = '\.ts$',
+    pass_filenames = false,
+  },
+]

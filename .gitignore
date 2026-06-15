@@ -141,3 +141,12 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# ryl-vscode: per-platform ryl binary downloaded at package time
+bundled/
+
+# Packaged extensions
+*.vsix
+
+# E2E fixture content written at test runtime
+src/test/fixtures/*.generated.*

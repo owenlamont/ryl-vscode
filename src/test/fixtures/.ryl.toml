@@ -1,0 +1,11 @@
+# Config for the E2E fixture workspace. ryl discovers this file (the nearest
+# config) when the test opens a YAML file here; the repo's top-level .ryl.toml
+# deliberately ignores this directory.
+
+[files]
+yaml = ["*.yaml", "*.yml"]
+
+[rules]
+trailing-spaces = "enable"
+key-duplicates = "enable"
+new-line-at-end-of-file = "enable"
