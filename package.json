@@ -149,8 +149,6 @@
     "compile": "node esbuild.mjs",
     "watch": "node esbuild.mjs --watch",
     "check-types": "tsc --noEmit",
-    "lint": "biome check .",
-    "format": "biome format --write .",
     "compile-tests": "tsc -p . --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run check-types",
     "test": "vscode-test",
@@ -163,7 +161,6 @@
     "which": "^7.0.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.9.3",
     "@types/vscode": "1.82.0",
