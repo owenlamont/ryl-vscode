@@ -61,7 +61,8 @@ Keep the client thin: if a feature can be done in the server, it belongs there.
 - For behaviour changes, `npm test` (the end-to-end suite) must pass and any
   user-facing docs (README, CHANGELOG, settings descriptions) must be updated.
 - Build: `npm run compile` (esbuild); production `npm run package`. Type-check:
-  `npm run check-types` (`tsc --noEmit`). Lint/format: `npx biome check .`.
+  `npm run check-types` (`tsc --noEmit`). Lint/format: `prek run --all-files`
+  (Biome runs via its prek hook, not as an npm dependency).
 - `npm test` runs the suite in a real VS Code instance (downloaded to
   `.vscode-test/`). It needs a display; on Linux/WSL it uses the ambient
   `DISPLAY` (WSLg) or xvfb, and needs `ryl` resolvable (the suite uses
