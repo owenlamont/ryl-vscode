@@ -20,7 +20,7 @@ jobs:
           persist-credentials: false
       # uv only installs prek here, so disable its cache (default is auto-on for
       # hosted runners, which warns about no lockfile to key on).
-      - uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v6
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v6
         with:
           enable-cache: false
       - name: Install prek
