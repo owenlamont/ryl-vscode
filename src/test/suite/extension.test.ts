@@ -149,6 +149,7 @@ suite("ryl-vscode end-to-end", () => {
     const diagnostics = await waitForRylDiagnostics(doc.uri);
     assert.ok(diagnostics.length > 0, "expected ryl diagnostics for the embedded YAML");
     // fix-all must work on Markdown too (the guards allow it, the server fixes the block).
+    await waitForFixAllAction(doc);
     await vscode.commands.executeCommand("ryl.fixAll");
     await waitFor(() => !/[ \t]$/m.test(doc.getText()));
     assert.ok(
@@ -244,4 +245,36 @@ async function waitForRename(
     await new Promise((resolve) => setTimeout(resolve, 200));
   }
   return undefined;
+}
+
+// The first Markdown document in a session activates the built-in Markdown extension,
+// whose providers register asynchronously, and VS Code cancels every in-flight
+// code-action request when a document's provider set changes (surfacing as an empty
+// result or a CancellationError). Poll until ryl's fix-all action comes back so the
+// command under test is not the request that gets cancelled.
+async function waitForFixAllAction(doc: vscode.TextDocument, timeoutMs = 30000): Promise<void> {
+  const kind = vscode.CodeActionKind.SourceFixAll.append("ryl");
+  const range = new vscode.Range(
+    new vscode.Position(0, 0),
+    doc.lineAt(doc.lineCount - 1).range.end,
+  );
+  const start = Date.now();
+  let lastError: unknown;
+  while (Date.now() - start < timeoutMs) {
+    try {
+      const actions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+        "vscode.executeCodeActionProvider",
+        doc.uri,
+        range,
+        kind.value,
+      );
+      if (actions?.some((action) => action.kind && kind.contains(action.kind))) {
+        return;
+      }
+    } catch (err) {
+      lastError = err;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+  throw lastError ?? new Error("timed out waiting for ryl's fix-all code action");
 }
