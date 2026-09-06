@@ -1,0 +1,126 @@
+name: Bump bundled ryl
+# ryl's release.yml dispatches ryl_release on every tag; the schedule catches a miss.
+on:
+  repository_dispatch:
+    types: [ryl_release]
+  schedule:
+    - cron: "0 11 * * 1" # Monday 19:00 UTC+8
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "ryl version to pin (X.Y.Z); defaults to the latest release"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+# A dispatch and the weekly schedule can overlap; both would open the same PR.
+concurrency:
+  group: bump-ryl
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    environment: automation
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+      # download-ryl.mjs uses only node builtins, so no npm install is needed.
+      - name: Resolve the ryl version to pin
+        id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DISPATCH_VERSION: ${{ github.event.client_payload.version }}
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |-
+          set -euo pipefail
+          version="${DISPATCH_VERSION:-${INPUT_VERSION:-}}"
+          if [ -z "$version" ]; then
+            version=$(gh release view --repo owenlamont/ryl --json tagName -q .tagName)
+          fi
+          version="${version#v}"
+          # Reaches a sed expression and a URL, and a dispatch payload is caller-supplied.
+          if ! printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::Refusing to pin \"$version\": not a bare X.Y.Z version." >&2
+            exit 1
+          fi
+          current=$(sed -nE 's/^const RYL_VERSION = "(.+)";$/\1/p' scripts/download-ryl.mjs)
+          if [ -z "$current" ]; then
+            echo "::error::Could not read RYL_VERSION from scripts/download-ryl.mjs." >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [ "$version" = "$current" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Already pinned at ryl $current; nothing to do."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Bumping the pin from ryl $current to $version."
+          fi
+      # A dispatch can beat the assets, and download-ryl.mjs treats a 404 as fatal.
+      - name: Wait for the release assets
+        if: steps.resolve.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.resolve.outputs.version }}
+        run: |-
+          set -euo pipefail
+          for attempt in $(seq 1 30); do
+            if gh release view "v$VERSION" --repo owenlamont/ryl --json assets -q '.assets[].name' \
+                2>/dev/null | grep -qx SHA256SUMS; then
+              echo "ryl v$VERSION has published its SHA256SUMS asset."
+              exit 0
+            fi
+            echo "Attempt $attempt/30: ryl v$VERSION has no SHA256SUMS asset yet; retrying in 10s."
+            sleep 10
+          done
+          echo "::error::Gave up after 5 minutes waiting for a SHA256SUMS asset on ryl v$VERSION." >&2
+          exit 1
+      - name: Bump RYL_VERSION and regenerate the checksums
+        if: steps.resolve.outputs.changed == 'true'
+        env:
+          VERSION: ${{ steps.resolve.outputs.version }}
+        run: |-
+          set -euo pipefail
+          sed -i -E "s/^const RYL_VERSION = \".+\";\$/const RYL_VERSION = \"$VERSION\";/" \
+            scripts/download-ryl.mjs
+          # Cross-checks the hashes against SHA256SUMS, so the PR carries what ryl published.
+          node scripts/download-ryl.mjs --update-checksums
+          git diff --stat
+      - name: Generate token
+        if: steps.resolve.outputs.changed == 'true'
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v2
+        id: token
+        with:
+          client-id: ${{ secrets.AUTH_APP_CLIENT_ID }}
+          private-key: ${{ secrets.AUTH_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+      - name: Create PR with the bumped pin
+        if: steps.resolve.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v7
+        with:
+          token: ${{ steps.token.outputs.token }}
+          commit-message: "chore: bundle ryl ${{ steps.resolve.outputs.version }}"
+          title: "chore: bundle ryl ${{ steps.resolve.outputs.version }}"
+          body: |-
+            Automated pin bump: `RYL_VERSION` in `scripts/download-ryl.mjs` now
+            points at [ryl v${{ steps.resolve.outputs.version }}](https://github.com/owenlamont/ryl/releases/tag/v${{ steps.resolve.outputs.version }}),
+            and `scripts/ryl-checksums.json` was regenerated and cross-checked
+            against that release's `SHA256SUMS` asset.
+
+            CI packages and runs the end-to-end suite against the new binary, so
+            a merge is safe once it is green. Shipping it still needs a CHANGELOG
+            entry, a `package.json` version bump, and a tag.
+          branch: bot/bump-ryl
+          author: GitHub Actions <actions@github.com>
+          delete-branch: true
