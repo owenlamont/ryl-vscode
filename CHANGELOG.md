@@ -6,6 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1]
+
+### Changed
+
+- Bundle ryl 0.21.0 (was 0.18.1). Diagnostics now honour a document's `%YAML`
+  version directive, and `YAMLLINT_CONFIG_FILE` is read only when it points at a
+  yamllint YAML config.
+
+### Fixed
+
+- A `.config/ryl.toml` config file is discovered again. Discovery landed in ryl
+  0.19.0 and the extension still bundled 0.18.1, which predates it
+  ([ryl#399](https://github.com/owenlamont/ryl/issues/399)).
+- The `tags` rule no longer misses a tag split across a `%TAG` directive.
+
 ## [0.2.0]
 
 ### Added

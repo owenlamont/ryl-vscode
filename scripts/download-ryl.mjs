@@ -1,7 +1,8 @@
 // Download a pinned ryl release binary into bundled/ for packaging into the
 // per-platform .vsix. Each downloaded asset is verified against a committed
 // SHA-256 (scripts/ryl-checksums.json) before extraction, so a release tampered
-// with after pin-time fails the build. Usage:
+// with after pin-time fails the build; --update-checksums cross-checks those
+// pins against the release's own SHA256SUMS. Usage:
 //   node scripts/download-ryl.mjs                 # current host platform
 //   node scripts/download-ryl.mjs --target <code-target>
 //   node scripts/download-ryl.mjs --update-checksums   # regenerate the pins
@@ -13,7 +14,7 @@ import { fileURLToPath } from "node:url";
 
 // Pinned ryl version. Bump in lockstep with the binary you intend to ship, then
 // regenerate the checksums (see --update-checksums).
-const RYL_VERSION = "0.18.1";
+const RYL_VERSION = "0.21.0";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const BUNDLED_DIR = path.join(SCRIPT_DIR, "..", "bundled");
@@ -85,6 +86,31 @@ function sha256(filePath) {
   return createHash("sha256").update(fs.readFileSync(filePath)).digest("hex");
 }
 
+// SHA256SUMS is coreutils format: "<sha256>  <file>" per line.
+function parseSums(text) {
+  const sums = {};
+  for (const line of text.split("\n")) {
+    const match = /^([0-9a-f]{64})\s+\*?(\S+)$/.exec(line.trim());
+    if (match) {
+      sums[match[2]] = match[1];
+    }
+  }
+  return sums;
+}
+
+async function fetchPublishedSums() {
+  const url = `${RELEASE_BASE}/SHA256SUMS`;
+  const dest = path.join(BUNDLED_DIR, "SHA256SUMS");
+  console.log(`Fetching ${url}`);
+  await downloadWithRetry(url, dest);
+  const sums = parseSums(fs.readFileSync(dest, "utf8"));
+  fs.rmSync(dest, { force: true });
+  if (Object.keys(sums).length === 0) {
+    throw new Error(`${url} contained no "<sha256>  <file>" lines.`);
+  }
+  return sums;
+}
+
 function loadChecksums() {
   if (!fs.existsSync(CHECKSUMS_FILE)) {
     throw new Error(
@@ -127,20 +153,34 @@ function extract(archivePath, asset, destDir) {
 
 async function updateChecksums() {
   fs.mkdirSync(BUNDLED_DIR, { recursive: true });
+  // SHA256SUMS pins what ryl published, not whatever the download returned.
+  const published = await fetchPublishedSums();
   const assets = {};
   for (const asset of distinctAssets()) {
     const dest = path.join(BUNDLED_DIR, asset);
     const url = `${RELEASE_BASE}/${asset}`;
     console.log(`Hashing ${url}`);
     await downloadWithRetry(url, dest);
-    assets[asset] = sha256(dest);
+    const digest = sha256(dest);
     fs.rmSync(dest, { force: true });
+    const expected = published[asset];
+    if (!expected) {
+      throw new Error(`ryl ${RYL_VERSION}'s SHA256SUMS does not list ${asset}.`);
+    }
+    if (digest !== expected) {
+      throw new Error(
+        `${asset} does not match ryl ${RYL_VERSION}'s SHA256SUMS:\n  published  ${expected}\n  downloaded ${digest}`,
+      );
+    }
+    assets[asset] = digest;
   }
   fs.writeFileSync(
     CHECKSUMS_FILE,
     `${JSON.stringify({ version: RYL_VERSION, assets }, null, 2)}\n`,
   );
-  console.log(`Wrote ${Object.keys(assets).length} checksums to ${CHECKSUMS_FILE}`);
+  console.log(
+    `Wrote ${Object.keys(assets).length} checksums to ${CHECKSUMS_FILE} (cross-checked against SHA256SUMS)`,
+  );
 }
 
 async function downloadTarget(target) {

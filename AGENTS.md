@@ -137,7 +137,14 @@ silently break the language server.
   checksums: `node scripts/download-ryl.mjs --update-checksums` and commit
   `scripts/ryl-checksums.json`. `download-ryl` verifies every downloaded asset's
   SHA-256 against that file before extraction, so a release tampered with after
-  pin-time fails the build.
+  pin-time fails the build. `--update-checksums` cross-checks every hash it
+  computes against the release's own `SHA256SUMS` asset, so a regenerated pin
+  can only record what ryl published.
+- `.github/workflows/bump-ryl.yml` raises that bump as a PR on its own: ryl's
+  `release.yml` dispatches `ryl_release` here on every tag, and a Monday
+  schedule covers a dispatch that never arrived. The PR carries only the pin and
+  the checksums; the CHANGELOG entry, the extension version bump, and the tag
+  stay manual.
 - ryl publishes no `x86_64-apple-darwin` (Intel macOS) binary, so `darwin-x64` is
   not a build target. Re-add it (to `TARGETS`, the release matrix, and the
   checksums) once ryl ships that asset.
