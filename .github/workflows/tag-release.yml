@@ -22,8 +22,6 @@ jobs:
           persist-credentials: false
       - name: Check for an untagged version
         id: check
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |-
           set -euo pipefail
           version=$(jq -r .version package.json)
@@ -31,7 +29,13 @@ jobs:
             echo "::error::Refusing to tag \"$version\": not a bare X.Y.Z version." >&2
             exit 1
           fi
-          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$version" > /dev/null 2>&1; then
+          lookup=0
+          git ls-remote --exit-code --tags origin "refs/tags/v$version" > /dev/null || lookup=$?
+          if [ "$lookup" -ne 0 ] && [ "$lookup" -ne 2 ]; then
+            echo "::error::Could not check whether v$version is tagged." >&2
+            exit 1
+          fi
+          if [ "$lookup" -eq 0 ]; then
             echo "v$version is already tagged; nothing to release."
             echo "tag=false" >> "$GITHUB_OUTPUT"
             exit 0

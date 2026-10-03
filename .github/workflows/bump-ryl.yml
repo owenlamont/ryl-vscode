@@ -100,16 +100,20 @@ jobs:
         id: extension
         if: steps.resolve.outputs.changed == 'true'
         env:
-          GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.resolve.outputs.version }}
           PREVIOUS: ${{ steps.resolve.outputs.previous }}
         run: |-
           set -euo pipefail
           extension=$(jq -r .version package.json)
-          # An untagged version never shipped, so this bump joins it instead of skipping it.
-          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$extension" > /dev/null 2>&1; then
+          # --exit-code gives 2 for no such tag; an untagged version never shipped, so join it.
+          lookup=0
+          git ls-remote --exit-code --tags origin "refs/tags/v$extension" > /dev/null || lookup=$?
+          if [ "$lookup" -eq 0 ]; then
             extension=$(npm version patch --no-git-tag-version)
             extension="${extension#v}"
+          elif [ "$lookup" -ne 2 ]; then
+            echo "::error::Could not check whether v$extension is tagged." >&2
+            exit 1
           fi
           node scripts/changelog-ryl-bump.mjs "$extension" "$VERSION" "$PREVIOUS"
           echo "extension=$extension" >> "$GITHUB_OUTPUT"
