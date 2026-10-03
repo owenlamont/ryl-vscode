@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bundle ryl 0.21.0 (was 0.18.1). Diagnostics now honour a document's `%YAML`
+- Bundle ryl 0.22.0 (was 0.18.1). Diagnostics now honour a document's `%YAML`
   version directive, and `YAMLLINT_CONFIG_FILE` is read only when it points at a
   yamllint YAML config.
 

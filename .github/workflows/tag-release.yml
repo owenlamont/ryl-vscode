@@ -1,0 +1,63 @@
+name: Tag release
+# Tags main when its package.json version has no tag yet, so merging a release PR
+# (bump-ryl.yml's, or a hand-made one) publishes it through release.yml.
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tag-release
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    environment: automation
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check for an untagged version
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |-
+          set -euo pipefail
+          version=$(jq -r .version package.json)
+          if ! printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::Refusing to tag \"$version\": not a bare X.Y.Z version." >&2
+            exit 1
+          fi
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$version" > /dev/null 2>&1; then
+            echo "v$version is already tagged; nothing to release."
+            echo "tag=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if ! grep -Fqx "## [$version]" CHANGELOG.md; then
+            echo "::error::package.json is at $version, which has no tag and no \"## [$version]\" CHANGELOG.md section." >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=true" >> "$GITHUB_OUTPUT"
+      # A tag pushed with GITHUB_TOKEN would not trigger release.yml; the App's does.
+      - name: Generate token
+        if: steps.check.outputs.tag == 'true'
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v2
+        id: token
+        with:
+          client-id: ${{ secrets.AUTH_APP_CLIENT_ID }}
+          private-key: ${{ secrets.AUTH_APP_PRIVATE_KEY }}
+          permission-contents: write
+      # The push is refused if the tag appeared meanwhile, so a manual tag cannot be moved.
+      - name: Push the tag
+        if: steps.check.outputs.tag == 'true'
+        env:
+          APP_TOKEN: ${{ steps.token.outputs.token }}
+          VERSION: ${{ steps.check.outputs.version }}
+        run: |-
+          set -euo pipefail
+          git push "https://x-access-token:${APP_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            "${GITHUB_SHA}:refs/tags/v${VERSION}"
