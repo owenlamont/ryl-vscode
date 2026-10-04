@@ -48,8 +48,8 @@ Keep the client thin: if a feature can be done in the server, it belongs there.
 - **`scripts/download-ryl.mjs`** - downloads the pinned ryl release binary into
   `bundled/` for a given VS Code target. `bundled/` is gitignored (populated at
   package time).
-- **`.github/workflows/`** - CI (lint/typecheck/build) and the per-target VSIX
-  release matrix.
+- **`.github/workflows/`** - CI (lint/typecheck/build), the ryl bump PR, the
+  release tagger, and the per-target VSIX release matrix.
 - **`esbuild.mjs`** - bundles `src/extension.ts` to `dist/extension.js`.
 - **`biome.json`**, **`prek.toml`** - linting/formatting (Biome + prek).
 - **`.ryl.toml`** - ryl dogfoods this repo's own YAML.
@@ -142,9 +142,16 @@ silently break the language server.
   can only record what ryl published.
 - `.github/workflows/bump-ryl.yml` raises that bump as a PR on its own: ryl's
   `release.yml` dispatches `ryl_release` here on every tag, and a Monday
-  schedule covers a dispatch that never arrived. The PR carries only the pin and
-  the checksums; the CHANGELOG entry, the extension version bump, and the tag
-  stay manual.
+  schedule covers a dispatch that never arrived. The PR is a release PR: it also
+  bumps the extension's patch version (unless the current one is still untagged)
+  and records the bump in `CHANGELOG.md` via `scripts/changelog-ryl-bump.mjs`,
+  which promotes any `[Unreleased]` entries into the new section.
+- Merging is the release gate. `.github/workflows/tag-release.yml` runs on every
+  push to `main` and, when the `package.json` version has no `v<version>` tag,
+  pushes one with the App token (a `GITHUB_TOKEN` tag would not trigger
+  `release.yml`). It fails instead if `CHANGELOG.md` has no `## [<version>]`
+  section. So a hand-made release is a PR that bumps the version and adds that
+  section; do not push `v*` tags by hand.
 - ryl publishes no `x86_64-apple-darwin` (Intel macOS) binary, so `darwin-x64` is
   not a build target. Re-add it (to `TARGETS`, the release matrix, and the
   checksums) once ryl ships that asset.

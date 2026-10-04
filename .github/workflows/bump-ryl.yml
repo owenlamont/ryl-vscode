@@ -59,6 +59,7 @@ jobs:
             exit 1
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "previous=$current" >> "$GITHUB_OUTPUT"
           if [ "$version" = "$current" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "Already pinned at ryl $current; nothing to do."
@@ -95,6 +96,27 @@ jobs:
             scripts/download-ryl.mjs
           # Cross-checks the hashes against SHA256SUMS, so the PR carries what ryl published.
           node scripts/download-ryl.mjs --update-checksums
+      - name: Bump the extension version and record the bump in CHANGELOG.md
+        id: extension
+        if: steps.resolve.outputs.changed == 'true'
+        env:
+          VERSION: ${{ steps.resolve.outputs.version }}
+          PREVIOUS: ${{ steps.resolve.outputs.previous }}
+        run: |-
+          set -euo pipefail
+          extension=$(jq -r .version package.json)
+          # --exit-code gives 2 for no such tag; an untagged version never shipped, so join it.
+          lookup=0
+          git ls-remote --exit-code --tags origin "refs/tags/v$extension" > /dev/null || lookup=$?
+          if [ "$lookup" -eq 0 ]; then
+            extension=$(npm version patch --no-git-tag-version)
+            extension="${extension#v}"
+          elif [ "$lookup" -ne 2 ]; then
+            echo "::error::Could not check whether v$extension is tagged." >&2
+            exit 1
+          fi
+          node scripts/changelog-ryl-bump.mjs "$extension" "$VERSION" "$PREVIOUS"
+          echo "extension=$extension" >> "$GITHUB_OUTPUT"
           git diff --stat
       - name: Generate token
         if: steps.resolve.outputs.changed == 'true'
@@ -110,17 +132,24 @@ jobs:
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v7
         with:
           token: ${{ steps.token.outputs.token }}
-          commit-message: "chore: bundle ryl ${{ steps.resolve.outputs.version }}"
-          title: "chore: bundle ryl ${{ steps.resolve.outputs.version }}"
+          commit-message: "chore: bundle ryl ${{ steps.resolve.outputs.version }}, release ${{ steps.extension.outputs.extension }}"
+          title: "chore: bundle ryl ${{ steps.resolve.outputs.version }}, release ${{ steps.extension.outputs.extension }}"
           body: |-
             Automated pin bump: `RYL_VERSION` in `scripts/download-ryl.mjs` now
             points at [ryl v${{ steps.resolve.outputs.version }}](https://github.com/owenlamont/ryl/releases/tag/v${{ steps.resolve.outputs.version }}),
             and `scripts/ryl-checksums.json` was regenerated and cross-checked
             against that release's `SHA256SUMS` asset.
 
-            CI packages and runs the end-to-end suite against the new binary, so
-            a merge is safe once it is green. Shipping it still needs a CHANGELOG
-            entry, a `package.json` version bump, and a tag.
+            It also sets the extension version to
+            ${{ steps.extension.outputs.extension }} and records the bump in
+            `CHANGELOG.md`, including any `[Unreleased]` entries.
+
+            **Merging this releases it**: `tag-release.yml` tags
+            `v${{ steps.extension.outputs.extension }}` on `main`, and the tag
+            publishes to the VS Marketplace and Open VSX. Before merging, check
+            the CHANGELOG section, and push a minor bump here instead if
+            `[Unreleased]` held new features. CI packages and runs the
+            end-to-end suite against the new binary.
           branch: bot/bump-ryl
           author: GitHub Actions <actions@github.com>
           delete-branch: true
