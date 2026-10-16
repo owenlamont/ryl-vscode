@@ -9,13 +9,13 @@ A platform-specific build of ryl is bundled with the extension, so it works with
 no separate install. If you already have ryl on your `PATH` or in a project
 environment, the extension uses that instead (see [How ryl is located](#how-ryl-is-located)).
 
-**Lint and auto-fix YAML as you type:**
+**Lint, auto-fix, and format YAML as you type:**
 
-![ryl linting and auto-fixing YAML in VS Code](https://raw.githubusercontent.com/owenlamont/ryl-vscode/main/images/demo-yaml.gif)
+![ryl linting, auto-fixing, and formatting YAML in VS Code](https://raw.githubusercontent.com/owenlamont/ryl-vscode/main/images/demo-yaml.gif)
 
 **...including YAML embedded in Markdown front matter and fenced blocks:**
 
-![ryl linting YAML embedded in a Markdown file](https://raw.githubusercontent.com/owenlamont/ryl-vscode/main/images/demo-markdown.gif)
+![ryl linting, auto-fixing, and formatting YAML embedded in a Markdown file](https://raw.githubusercontent.com/owenlamont/ryl-vscode/main/images/demo-markdown.gif)
 
 ## Features
 

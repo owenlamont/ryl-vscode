@@ -13,17 +13,11 @@ import * as vscode from "vscode";
 
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Plain-YAML scenario: a spread of safe-fixable ryl violations so `ryl.fixAll`
-// visibly reflows the whole document clean: a missing document start, a comment
-// with no starting space, trailing spaces, wrong/redundant string quoting, extra
-// spaces in flow braces/brackets, a missing space after a comma, too many blank
-// lines, and no final newline. The demo workspace disables auto-close/auto-indent
-// and the typing helper strips auto-indent, so this types verbatim.
 const YAML_CONTENT = [
   "#demo config",
   "name: ryl-vscode   ",
   "version: '1.0'",
-  "greeting: 'hello'",
+  'greeting: "hello: world"',
   "env: {  debug: true  }",
   "ports: [  8080,9090  ]",
   "",
@@ -33,10 +27,6 @@ const YAML_CONTENT = [
   "  - beta",
 ].join("\n");
 
-// Markdown scenario: the YAML is typed into a fenced ```yaml block.
-// document-start / final-newline are suppressed inside embedded blocks, so this
-// showcases the rules that DO apply there (comments, trailing spaces, string
-// quoting, flow braces/brackets, commas) and fix-all reflows the block.
 const MD_SCAFFOLD = [
   "# Service notes",
   "",
@@ -52,7 +42,7 @@ const MD_YAML = [
   "#config",
   "name: ryl-vscode   ",
   "version: '1.0'",
-  "greeting: 'hello'",
+  'greeting: "hello: world"',
   "env: {  debug: true  }",
   "ports: [  8080,9090  ]",
 ].join("\n");
@@ -100,6 +90,13 @@ async function showProblemsThenFixAll(): Promise<void> {
   await sleep(3500);
 }
 
+async function showFormatDocument(): Promise<void> {
+  await vscode.commands.executeCommand("workbench.action.quickOpen", "> Format Document");
+  await sleep(2600);
+  await vscode.commands.executeCommand("workbench.action.acceptSelectedQuickOpenItem");
+  await sleep(3500);
+}
+
 async function runYamlScenario(folder: vscode.WorkspaceFolder): Promise<void> {
   const uri = vscode.Uri.joinPath(folder.uri, "demo.generated.yaml");
   fs.writeFileSync(uri.fsPath, "");
@@ -108,6 +105,7 @@ async function runYamlScenario(folder: vscode.WorkspaceFolder): Promise<void> {
   await typeText(YAML_CONTENT);
   await sleep(2500);
   await showProblemsThenFixAll();
+  await showFormatDocument();
   fs.rmSync(uri.fsPath, { force: true });
 }
 
@@ -123,6 +121,7 @@ async function runMarkdownScenario(folder: vscode.WorkspaceFolder): Promise<void
   await typeText(MD_YAML);
   await sleep(2500);
   await showProblemsThenFixAll();
+  await showFormatDocument();
   fs.rmSync(uri.fsPath, { force: true });
 }
 

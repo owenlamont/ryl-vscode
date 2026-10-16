@@ -3,5 +3,7 @@
   "editor.autoClosingBrackets": "never",
   "editor.autoClosingQuotes": "never",
   "editor.autoIndent": "none",
+  "[yaml]": { "editor.defaultFormatter": "owenlamont.ryl" },
+  "[markdown]": { "editor.defaultFormatter": "owenlamont.ryl" },
   "workbench.colorTheme": "Dark Modern"
 }
