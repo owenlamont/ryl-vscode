@@ -4,26 +4,26 @@
 yaml = ["*.yaml", "*.yml"]
 markdown = ["*.md"]
 
-[rules]
+[lint.rules]
 trailing-spaces = "enable"
 new-line-at-end-of-file = "enable"
 commas = "enable"
 
-[rules.braces]
+[lint.rules.braces]
 max-spaces-inside = 1
 
-[rules.brackets]
+[lint.rules.brackets]
 max-spaces-inside = 1
 
-[rules.quoted-strings]
+[lint.rules.quoted-strings]
 quote-type = "double"
 required = "only-when-needed"
 
-[rules.comments]
+[lint.rules.comments]
 require-starting-space = true
 
-[rules.empty-lines]
+[lint.rules.empty-lines]
 max = 1
 
-[rules.document-start]
+[lint.rules.document-start]
 present = true

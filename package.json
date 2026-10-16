@@ -1,8 +1,8 @@
 {
   "name": "ryl",
-  "displayName": "ryl - YAML Linter",
-  "description": "Fast Rust-based YAML linter with real-time diagnostics, auto-fix, and formatting, powered by the ryl language server.",
-  "version": "0.2.4",
+  "displayName": "ryl - YAML Linter and Formatter",
+  "description": "Fast YAML linter and formatter with real-time diagnostics, safe fixes, and formatting, powered by the ryl language server.",
+  "version": "0.3.0",
   "publisher": "owenlamont",
   "license": "MIT",
   "author": {
@@ -45,6 +45,7 @@
   "keywords": [
     "yaml",
     "linter",
+    "formatter",
     "rust",
     "yamllint",
     "auto-fix",
@@ -92,7 +93,7 @@
         "ryl.configPath": {
           "type": "string",
           "scope": "resource",
-          "markdownDescription": "Path to a ryl configuration file (`ryl.toml`, `.ryl.toml`, or a yamllint-style config). When empty, ryl discovers configuration from the workspace as it would on the command line."
+          "markdownDescription": "Path to a ryl configuration file (`ryl.toml`, `.ryl.toml`, or a deprecated yamllint-style config). When empty, ryl discovers configuration from the workspace as it would on the command line."
         },
         "ryl.fixOnSave": {
           "type": "boolean",

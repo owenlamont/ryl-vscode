@@ -6,12 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.4]
+## [0.3.0]
 
 ### Changed
 
 - Bundle ryl 0.25.0 (was 0.24.0). See its
   [release notes](https://github.com/owenlamont/ryl/releases/tag/v0.25.0).
+- Format Document now runs `ryl format` with the config's `[format]` settings,
+  for YAML files and YAML embedded in Markdown; 0.2.x applied the safe lint fixes.
+  Fix-all and `ryl.fixOnSave` still apply the safe fixes.
+- A warning names any enabled lint rule whose options conflict with `[format]`.
+
+### Fixed
+
+- Changing `ryl.fixOnSave` no longer restarts the language server, so a save
+  made just after it still formats.
 
 ## [0.2.3]
 

@@ -1,9 +1,9 @@
 # ryl for Visual Studio Code
 
 Visual Studio Code support for [ryl](https://github.com/owenlamont/ryl), a fast
-Rust-based YAML linter (a drop-in replacement for yamllint with extra rules and
-fixes). The extension is a thin client that runs `ryl server`, ryl's built-in
-language server, so all linting, fixing, and formatting is done by ryl itself.
+YAML linter and formatter written in Rust. The extension is a thin client that runs
+`ryl server`, ryl's built-in language server, so all linting, fixing, and formatting
+is done by ryl itself.
 
 A platform-specific build of ryl is bundled with the extension, so it works with
 no separate install. If you already have ryl on your `PATH` or in a project
@@ -27,8 +27,9 @@ environment, the extension uses that instead (see [How ryl is located](#how-ryl-
   diagnostics, hover, and fix-all (per-line disable and rename stay YAML-only).
 - **Fix all.** Apply every safe ryl fix to a document via the `ryl.fixAll`
   command, the `source.fixAll.ryl` code action, or on save.
-- **Formatting.** ryl advertises a document formatter, so you can set it as the
-  default formatter for YAML and format on save (see [Setup](#recommended-setup)).
+- **Formatting.** Format Document runs `ryl format` with your config's `[format]`
+  settings, for YAML files and YAML embedded in Markdown. Set ryl as the default
+  formatter to format on save (see [Setup](#recommended-setup)).
 - **Quick fixes.** Insert `# ryl disable-line` / `# ryl disable-file` directives
   to silence a rule for a line or file.
 - **Hover.** Hover a diagnostic to see the rule, message, and a link to its docs.
@@ -43,8 +44,8 @@ extension will prefer it.
 
 ## Recommended setup
 
-Add this to your settings to make ryl your YAML formatter and to apply fixes on
-save:
+Add this to your settings to make ryl your YAML formatter and to apply safe lint
+fixes on save:
 
 ```json
 {
@@ -59,7 +60,15 @@ save:
 ```
 
 `ryl.fixOnSave` is a convenience equivalent to the `codeActionsOnSave` entry
-above; pick whichever you prefer.
+above; pick whichever you prefer. Formatting and fixes are separate: Format
+Document applies `ryl format`, while fix-all applies the safe fixes of your enabled
+lint rules. Add `"[markdown]"` with the same `editor.defaultFormatter` to format
+YAML embedded in Markdown when your config opts in (`[files].markdown`).
+
+If an enabled lint rule's options disagree with a `[format]` setting (for example
+`new-lines` with `type = "unix"` beside `line-ending = "cr-lf"`), ryl still formats
+and shows a warning naming the rule and the setting to change. See ryl's
+[conflicting lint rules](https://ryl-docs.pages.dev/formatter/#conflicting-lint-rules).
 
 ## Settings
 
@@ -68,7 +77,7 @@ above; pick whichever you prefer.
 | `ryl.enable` | `true` | Enable the ryl language server. |
 | `ryl.path` | `""` | Path to the `ryl` executable. Empty uses auto-detection (see below). |
 | `ryl.importStrategy` | `fromEnvironment` | `fromEnvironment` prefers a ryl in your environment; `useBundled` always uses the bundled binary. |
-| `ryl.configPath` | `""` | Path to a ryl config file (`ryl.toml`, `.ryl.toml`, or a yamllint-style config). Empty uses normal config discovery. |
+| `ryl.configPath` | `""` | Path to a ryl config file (`ryl.toml`, `.ryl.toml`, or a deprecated yamllint-style config). Empty uses normal config discovery. |
 | `ryl.fixOnSave` | `false` | Apply all safe fixes when saving a YAML file. |
 | `ryl.trace.server` | `off` | Trace the LSP traffic between VS Code and ryl. |
 
@@ -97,7 +106,7 @@ In an untrusted workspace the bundled binary is always used, and `ryl.path` /
 ## Configuration
 
 ryl discovers its configuration (`ryl.toml`, `.ryl.toml`, `[tool.ryl]` in
-`pyproject.toml`, or a yamllint config) exactly as it does on the command line.
+`pyproject.toml`, or a deprecated yamllint config) exactly as it does on the command line.
 Set `ryl.configPath` to point at a specific file. See the
 [ryl configuration docs](https://github.com/owenlamont/ryl) for the rules and
 options.
