@@ -8,6 +8,10 @@ import { getSettings } from "./settings";
 // source.fixAll.<other> can never be applied by ryl.fixAll / fixOnSave.
 const RYL_FIX_ALL = vscode.CodeActionKind.SourceFixAll.append("ryl");
 
+// fixOnSave is read at save time, so changing it must not restart the server: a
+// save landing mid-restart would skip format-on-save.
+const SERVER_SETTINGS = ["enable", "path", "importStrategy", "configPath", "trace.server"];
+
 // The document languages ryl handles: YAML, plus Markdown (embedded YAML). The
 // server gates Markdown on config, so fix-all is offered for both and the server
 // returns no edit when there is nothing to fix.
@@ -31,7 +35,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand("ryl.showClientLogs", () => getLogChannel().show()),
     vscode.commands.registerCommand("ryl.showServerLogs", () => getServerChannel().show()),
     vscode.workspace.onDidChangeConfiguration((event) => {
-      if (event.affectsConfiguration("ryl")) {
+      if (SERVER_SETTINGS.some((key) => event.affectsConfiguration(`ryl.${key}`))) {
         void runServer();
       }
     }),

@@ -3,13 +3,13 @@
 # Mirrors the rule selection used in the ryl repo's own .ryl.toml.
 
 # E2E fixtures deliberately contain lint violations to exercise the extension.
-ignore = ["src/test/fixtures/"]
+exclude = ["src/test/fixtures/"]
 
 [files]
 yaml = ["*.yaml", "*.yml"]
 markdown = ["*.md"]
 
-[rules]
+[lint.rules]
 anchors = "enable"
 block-scalar-chomping = "enable"
 comments = "disable"
@@ -31,26 +31,26 @@ trailing-spaces = "enable"
 truthy = "disable"
 unicode-line-breaks = "enable"
 
-[rules.braces]
+[lint.rules.braces]
 level = "warning"
 max-spaces-inside = 1
 
-[rules.brackets]
+[lint.rules.brackets]
 level = "warning"
 max-spaces-inside = 1
 
-[rules.colons]
+[lint.rules.colons]
 level = "warning"
 
-[rules.commas]
+[lint.rules.commas]
 level = "warning"
 
-[rules.empty-lines]
+[lint.rules.empty-lines]
 level = "warning"
 
-[rules.hyphens]
+[lint.rules.hyphens]
 level = "warning"
 
-[rules.indentation]
+[lint.rules.indentation]
 indent-sequences = "consistent"
 level = "warning"
