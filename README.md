@@ -9,7 +9,7 @@ A platform-specific build of ryl is bundled with the extension, so it works with
 no separate install. If you already have ryl on your `PATH` or in a project
 environment, the extension uses that instead (see [How ryl is located](#how-ryl-is-located)).
 
-**Lint, auto-fix, and format YAML as you type:**
+**Lint YAML as you type, then fix and format it:**
 
 ![ryl linting, auto-fixing, and formatting YAML in VS Code](https://raw.githubusercontent.com/owenlamont/ryl-vscode/main/images/demo-yaml.gif)
 
