@@ -2,7 +2,7 @@
 // VS Code instance for screen recording (see scripts/record_demo.py). This is
 // NOT part of the assertion suite (npm test runs only src/test/suite); it just
 // performs visible actions with deliberate pauses so a recorder can capture the
-// live diagnostics and fix-all behaviours.
+// live diagnostics, fix-all and Format Document behaviours.
 //
 // The recorder runs this once per scenario (RYL_DEMO_SCENARIO = "yaml" |
 // "markdown"), capturing each to its own clip, so each story is told separately.

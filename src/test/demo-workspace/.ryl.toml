@@ -1,5 +1,7 @@
+# Only safe-fixable rules are enabled, so `ryl.fixAll` leaves the typed sample
+# lint-clean and Format Document has only style left to change.
 [files]
-yaml = ["*.yaml", "*.yml"]
+yaml =["*.yaml", "*.yml"]
 markdown = ["*.md"]
 
 [format]
