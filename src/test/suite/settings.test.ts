@@ -1,5 +1,4 @@
 import * as assert from "node:assert";
-import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
@@ -70,8 +69,11 @@ suite("ryl binary resolution", () => {
     if (process.platform === "win32") {
       this.skip();
     }
-    const bin = path.join(folder(), ".venv", "bin");
-    fs.mkdirSync(bin, { recursive: true });
+    const venv = path.join(folder(), ".venv");
+    // Non-recursive, so an existing .venv fails the test instead of being deleted below.
+    fs.mkdirSync(venv);
+    const bin = path.join(venv, "bin");
+    fs.mkdirSync(bin);
     const venvRyl = path.join(bin, "ryl");
     try {
       fs.writeFileSync(venvRyl, "#!/bin/sh\necho 'ryl 0.25.0'\n", { mode: 0o755 });
@@ -79,7 +81,7 @@ suite("ryl binary resolution", () => {
       fs.writeFileSync(venvRyl, "#!/bin/sh\necho 'ryl 0.17.0'\n", { mode: 0o755 });
       assert.notStrictEqual(await resolveRylPath(DEFAULTS), venvRyl, "too old for ryl server");
     } finally {
-      fs.rmSync(path.join(folder(), ".venv"), { recursive: true, force: true });
+      fs.rmSync(venv, { recursive: true, force: true });
     }
   });
 });
@@ -154,7 +156,8 @@ suite("ryl settings and commands end-to-end", () => {
     if (process.platform === "win32") {
       this.skip();
     }
-    const real = execFileSync("sh", ["-c", "command -v ryl"]).toString().trim() || BUNDLED_RYL_PATH;
+    const real = BUNDLED_RYL_PATH;
+    assert.ok(fs.existsSync(real), "run `npm run download-ryl` first");
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ryl-path-"));
     created.push(dir);
     const marker = path.join(dir, "invoked");
