@@ -4,11 +4,11 @@ on:
   repository_dispatch:
     types: [ryl_release]
   schedule:
-    - cron: "0 11 * * 1" # Monday 19:00 UTC+8
+    - cron: '0 11 * * 1'  # Monday 19:00 UTC+8
   workflow_dispatch:
     inputs:
       version:
-        description: "ryl version to pin (X.Y.Z); defaults to the latest release"
+        description: ryl version to pin (X.Y.Z); defaults to the latest release
         required: false
         type: string
 
@@ -28,12 +28,12 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
         with:
-          node-version: "24"
+          node-version: '24'
       # download-ryl.mjs uses only node builtins, so no npm install is needed.
       - name: Resolve the ryl version to pin
         id: resolve
@@ -120,7 +120,7 @@ jobs:
           git diff --stat
       - name: Generate token
         if: steps.resolve.outputs.changed == 'true'
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v2
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v2
         id: token
         with:
           client-id: ${{ secrets.AUTH_APP_CLIENT_ID }}
@@ -129,11 +129,11 @@ jobs:
           permission-pull-requests: write
       - name: Create PR with the bumped pin
         if: steps.resolve.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v7
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1  # v7
         with:
           token: ${{ steps.token.outputs.token }}
-          commit-message: "chore: bundle ryl ${{ steps.resolve.outputs.version }}, release ${{ steps.extension.outputs.extension }}"
-          title: "chore: bundle ryl ${{ steps.resolve.outputs.version }}, release ${{ steps.extension.outputs.extension }}"
+          commit-message: 'chore: bundle ryl ${{ steps.resolve.outputs.version }}, release ${{ steps.extension.outputs.extension }}'
+          title: 'chore: bundle ryl ${{ steps.resolve.outputs.version }}, release ${{ steps.extension.outputs.extension }}'
           body: |-
             Automated pin bump: `RYL_VERSION` in `scripts/download-ryl.mjs` now
             points at [ryl v${{ steps.resolve.outputs.version }}](https://github.com/owenlamont/ryl/releases/tag/v${{ steps.resolve.outputs.version }}),

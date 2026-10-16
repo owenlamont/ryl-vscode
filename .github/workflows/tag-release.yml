@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: automation
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
       - name: Check for an untagged version
@@ -49,7 +49,7 @@ jobs:
       # A tag pushed with GITHUB_TOKEN would not trigger release.yml; the App's does.
       - name: Generate token
         if: steps.check.outputs.tag == 'true'
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v2
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v2
         id: token
         with:
           client-id: ${{ secrets.AUTH_APP_CLIENT_ID }}
