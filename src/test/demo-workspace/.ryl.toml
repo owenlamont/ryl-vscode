@@ -1,11 +1,13 @@
 # Only safe-fixable rules are enabled, so `ryl.fixAll` leaves the typed sample
-# lint-clean and Format Document has only style left to change.
+# lint-clean while Format Document expands the flow collections.
 [files]
 yaml =["*.yaml", "*.yml"]
 markdown = ["*.md"]
 
 [format]
 quote-style = "single"
+sequence-style = "block"
+mapping-style = "block"
 max-blank-lines = 1
 
 [lint.rules]
