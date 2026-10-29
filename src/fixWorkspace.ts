@@ -39,10 +39,11 @@ export function fixFolder(
         }
         const output = `${stdout}${stderr}`;
         const summary = SUMMARY.exec(output);
-        // ryl prints the summary only after fixing, so a non-zero exit that carries one (problems
-        // remain, or `lint.strict` warnings) still ran; a config or spawn error carries none.
-        if (error && !summary) {
-          const message = stderr.trim().split(/\r?\n/)[0] || error.message;
+        const errorLine = /^error: .*/m.exec(stderr)?.[0];
+        // A non-zero exit with a summary and no `error:` line is problems remaining, including
+        // `lint.strict` warnings; a config, spawn or write error is a failure.
+        if (error && (!summary || errorLine)) {
+          const message = errorLine ?? error.message;
           resolve({ kind: "failed", message, output });
           return;
         }

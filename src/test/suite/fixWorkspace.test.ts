@@ -67,6 +67,19 @@ suite("ryl workspace fix", () => {
     assert.deepStrictEqual(result, { kind: "fixed", fixed: 1, remaining: 1 });
   });
 
+  test("a file ryl cannot write fails with ryl's message", async function () {
+    if (process.platform === "win32") {
+      this.skip();
+    }
+    fs.writeFileSync(path.join(folder, ".ryl.toml"), RULES);
+    const file = path.join(folder, "a.yaml");
+    fs.writeFileSync(file, "a: 1   \n");
+    fs.chmodSync(file, 0o444);
+    const result = await fixFolder(await resolveRylPath(getSettings()), folder, undefined);
+    assert.strictEqual(result.kind, "failed");
+    assert.match(result.message, /a\.yaml/);
+  });
+
   test("a config error fails with ryl's message", async () => {
     fs.writeFileSync(path.join(folder, "a.yaml"), "a: 1   \n");
     const missing = path.join(folder, "missing.toml");
