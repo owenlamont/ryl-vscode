@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `ryl: Fix all auto-fixable problems in workspace` (`ryl.fixAllWorkspace`) runs
+  `ryl check --fix` over every workspace folder with the configured
+  `ryl.configPath`, then reports how many problems were fixed and remain.
+
 ## [0.3.3]
 
 ### Changed
