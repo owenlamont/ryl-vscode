@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 import type { LanguageClient } from "vscode-languageclient/node";
+import { resolveRylPath } from "./binary";
 import { disposeChannels, getServerChannel, startServer, stopServer } from "./client";
+import { fixFolder, resolveConfigPath } from "./fixWorkspace";
 import { disposeLogger, getLogChannel, initLogger, log } from "./logger";
 import { getSettings } from "./settings";
 
@@ -32,6 +34,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   context.subscriptions.push(
     vscode.commands.registerCommand("ryl.restart", () => runServer()),
     vscode.commands.registerCommand("ryl.fixAll", () => fixAllActiveEditor()),
+    vscode.commands.registerCommand("ryl.fixAllWorkspace", () => fixAllWorkspace()),
     vscode.commands.registerCommand("ryl.showClientLogs", () => getLogChannel().show()),
     vscode.commands.registerCommand("ryl.showServerLogs", () => getServerChannel().show()),
     vscode.workspace.onDidChangeConfiguration((event) => {
@@ -137,4 +140,61 @@ async function computeFixAllEdits(document: vscode.TextDocument): Promise<vscode
   );
   const fixAll = actions?.find((action) => action.kind && RYL_FIX_ALL.contains(action.kind));
   return fixAll?.edit?.get(document.uri) ?? [];
+}
+
+async function fixAllWorkspace(): Promise<void> {
+  const folders = (vscode.workspace.workspaceFolders ?? []).filter(
+    (folder) => folder.uri.scheme === "file",
+  );
+  if (folders.length === 0) {
+    void vscode.window.showErrorMessage("ryl: no workspace folder is open.");
+    return;
+  }
+  // The CLI writes to disk, so unsaved edits would conflict with its changes.
+  await vscode.workspace.saveAll(false);
+  // Mirror the server: one binary and one config path, from the window-level settings.
+  const settings = getSettings();
+  const ryl = await resolveRylPath(settings);
+  const configPath = resolveConfigPath(settings.configPath, folders[0].uri.fsPath);
+  let fixed = 0;
+  let remaining = 0;
+  const failures: string[] = [];
+  await vscode.window.withProgress(
+    {
+      location: vscode.ProgressLocation.Notification,
+      title: "ryl: fixing workspace",
+      cancellable: true,
+    },
+    async (progress, token) => {
+      const abort = new AbortController();
+      token.onCancellationRequested(() => abort.abort());
+      for (const folder of folders) {
+        if (token.isCancellationRequested) {
+          return;
+        }
+        progress.report({ message: folder.name });
+        const result = await fixFolder(ryl, folder.uri.fsPath, configPath, abort.signal);
+        if (result.kind === "failed") {
+          log(`ryl check --fix failed in ${folder.uri.fsPath}:\n${result.output}`);
+          failures.push(`${folder.name}: ${result.message}`);
+        } else {
+          fixed += result.fixed;
+          remaining += result.remaining;
+        }
+      }
+    },
+  );
+  const summary = `ryl fixed ${fixed} problem${fixed === 1 ? "" : "s"}; ${remaining} remaining.`;
+  log(summary);
+  if (failures.length === 0) {
+    void vscode.window.showInformationMessage(summary);
+    return;
+  }
+  const choice = await vscode.window.showErrorMessage(
+    `${summary} Failed in ${failures.join("; ")}`,
+    "Show Logs",
+  );
+  if (choice) {
+    getLogChannel().show();
+  }
 }

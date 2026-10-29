@@ -126,6 +126,11 @@
         "category": "ryl"
       },
       {
+        "command": "ryl.fixAllWorkspace",
+        "title": "Fix all auto-fixable problems in workspace",
+        "category": "ryl"
+      },
+      {
         "command": "ryl.showClientLogs",
         "title": "Show client logs",
         "category": "ryl"

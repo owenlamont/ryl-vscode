@@ -39,6 +39,8 @@ Keep the client thin: if a feature can be done in the server, it belongs there.
     coalescing, fix-on-save, config-change and trust-grant restarts.
   - `client.ts` - builds and starts the `LanguageClient` (`ryl server`, YAML
     document selector, config-file watchers, output/trace channels).
+  - `fixWorkspace.ts` - runs `ryl check --fix` over a workspace folder for
+    `ryl.fixAllWorkspace` and parses its summary; vscode-free.
   - `binary.ts` - resolves which `ryl` to run (see precedence below) and restores
     the bundled binary's executable bit at runtime.
   - `settings.ts` - reads VS Code settings and builds the server's

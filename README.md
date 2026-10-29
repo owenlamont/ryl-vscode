@@ -26,7 +26,9 @@ environment, the extension uses that instead (see [How ryl is located](#how-ryl-
   diagnostics mapped back to the Markdown file. Markdown supports live
   diagnostics, hover, and fix-all (per-line disable and rename stay YAML-only).
 - **Fix all.** Apply every safe ryl fix to a document via the `ryl.fixAll`
-  command, the `source.fixAll.ryl` code action, or on save.
+  command, the `source.fixAll.ryl` code action, or on save. `ryl.fixAllWorkspace`
+  runs `ryl check --fix` over every workspace folder instead, after saving open
+  editors, and reports how many problems it fixed.
 - **Formatting.** Format Document runs `ryl format` with your config's `[format]`
   settings, for YAML files and YAML embedded in Markdown. Set ryl as the default
   formatter to format on save (see [Setup](#recommended-setup)).
@@ -86,6 +88,7 @@ and shows a warning naming the rule and the setting to change. See ryl's
 All commands are available from the Command Palette under the `ryl` category:
 
 - **ryl: Fix all auto-fixable problems** (`ryl.fixAll`)
+- **ryl: Fix all auto-fixable problems in workspace** (`ryl.fixAllWorkspace`)
 - **ryl: Restart Server** (`ryl.restart`)
 - **ryl: Show client logs** (`ryl.showClientLogs`)
 - **ryl: Show server logs** (`ryl.showServerLogs`)
