@@ -57,6 +57,16 @@ suite("ryl workspace fix", () => {
     assert.deepStrictEqual(result, { kind: "fixed", fixed: 1, remaining: 0 });
   });
 
+  test("a strict run that leaves only warnings still counts its fixes", async () => {
+    fs.writeFileSync(
+      path.join(folder, ".ryl.toml"),
+      '[lint]\nstrict = true\n[lint.rules]\ntrailing-spaces = "enable"\nkey-duplicates = { level = "warning" }\n',
+    );
+    fs.writeFileSync(path.join(folder, "a.yaml"), "a: 1   \na: 2\n");
+    const result = await fixFolder(await resolveRylPath(getSettings()), folder, undefined);
+    assert.deepStrictEqual(result, { kind: "fixed", fixed: 1, remaining: 1 });
+  });
+
   test("a config error fails with ryl's message", async () => {
     fs.writeFileSync(path.join(folder, "a.yaml"), "a: 1   \n");
     const missing = path.join(folder, "missing.toml");

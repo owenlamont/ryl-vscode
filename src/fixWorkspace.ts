@@ -38,15 +38,14 @@ export function fixFolder(
           return;
         }
         const output = `${stdout}${stderr}`;
-        // Exit 1 means problems remain after fixing; only exit 2 (usage or config error)
-        // and a failure to spawn mean the fix did not run.
-        const exitCode = error && typeof error.code === "number" ? error.code : undefined;
-        if (error && exitCode !== 1) {
+        const summary = SUMMARY.exec(output);
+        // ryl prints the summary only after fixing, so a non-zero exit that carries one (problems
+        // remain, or `lint.strict` warnings) still ran; a config or spawn error carries none.
+        if (error && !summary) {
           const message = stderr.trim().split(/\r?\n/)[0] || error.message;
           resolve({ kind: "failed", message, output });
           return;
         }
-        const summary = SUMMARY.exec(output);
         resolve({
           kind: "fixed",
           fixed: Number(summary?.[1] ?? 0),
