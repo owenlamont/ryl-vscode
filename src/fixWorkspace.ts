@@ -3,7 +3,8 @@ import * as path from "node:path";
 
 export type FolderFixResult =
   | { kind: "fixed"; fixed: number; remaining: number }
-  | { kind: "failed"; message: string; output: string };
+  | { kind: "failed"; message: string; output: string }
+  | { kind: "cancelled" };
 
 const SUMMARY = /\((\d+) fixed, (\d+) remaining\)/;
 
@@ -32,12 +33,16 @@ export function fixFolder(
       args,
       { cwd: folder, signal, maxBuffer: 64 * 1024 * 1024 },
       (error, stdout, stderr) => {
+        if (signal?.aborted) {
+          resolve({ kind: "cancelled" });
+          return;
+        }
         const output = `${stdout}${stderr}`;
         // Exit 1 means problems remain after fixing; only exit 2 (usage or config error)
         // and a failure to spawn mean the fix did not run.
         const exitCode = error && typeof error.code === "number" ? error.code : undefined;
         if (error && exitCode !== 1) {
-          const message = stderr.trim().split("\n")[0] || error.message;
+          const message = stderr.trim().split(/\r?\n/)[0] || error.message;
           resolve({ kind: "failed", message, output });
           return;
         }

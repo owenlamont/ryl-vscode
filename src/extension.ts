@@ -159,7 +159,7 @@ async function fixAllWorkspace(): Promise<void> {
   let fixed = 0;
   let remaining = 0;
   const failures: string[] = [];
-  await vscode.window.withProgress(
+  const completed = await vscode.window.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
       title: "ryl: fixing workspace",
@@ -169,11 +169,11 @@ async function fixAllWorkspace(): Promise<void> {
       const abort = new AbortController();
       token.onCancellationRequested(() => abort.abort());
       for (const folder of folders) {
-        if (token.isCancellationRequested) {
-          return;
-        }
         progress.report({ message: folder.name });
         const result = await fixFolder(ryl, folder.uri.fsPath, configPath, abort.signal);
+        if (result.kind === "cancelled") {
+          return false;
+        }
         if (result.kind === "failed") {
           log(`ryl check --fix failed in ${folder.uri.fsPath}:\n${result.output}`);
           failures.push(`${folder.name}: ${result.message}`);
@@ -182,8 +182,13 @@ async function fixAllWorkspace(): Promise<void> {
           remaining += result.remaining;
         }
       }
+      return true;
     },
   );
+  if (!completed) {
+    log("ryl.fixAllWorkspace cancelled.");
+    return;
+  }
   const summary = `ryl fixed ${fixed} problem${fixed === 1 ? "" : "s"}; ${remaining} remaining.`;
   log(summary);
   if (failures.length === 0) {

@@ -63,6 +63,17 @@ suite("ryl workspace fix", () => {
     assert.match(result.message, /missing\.toml/);
   });
 
+  test("an aborted run reports cancelled, not failed", async () => {
+    fs.writeFileSync(path.join(folder, "a.yaml"), "a: 1   \n");
+    const result = await fixFolder(
+      await resolveRylPath(getSettings()),
+      folder,
+      undefined,
+      AbortSignal.abort(),
+    );
+    assert.deepStrictEqual(result, { kind: "cancelled" });
+  });
+
   test("a relative config path resolves against the first folder, as the server does", () => {
     assert.strictEqual(resolveConfigPath("", folder), undefined);
     assert.strictEqual(
