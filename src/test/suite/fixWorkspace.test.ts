@@ -41,7 +41,9 @@ suite("ryl workspace fix", () => {
     fs.writeFileSync(path.join(folder, ".ryl.toml"), RULES);
     fs.mkdirSync(path.join(folder, "nested"));
     fs.writeFileSync(path.join(folder, "nested", "a.yaml"), "a: 1   \n");
-    fs.writeFileSync(path.join(folder, "b.yml"), "b: 1\nb: 2\n");
+    // A diagnostic quoting summary-shaped text must not be read as the summary.
+    const key = '"(9 fixed, 9 remaining)"';
+    fs.writeFileSync(path.join(folder, "b.yml"), `${key}: 1\n${key}: 2\n`);
     const result = await fixFolder(await resolveRylPath(getSettings()), folder, undefined);
     assert.deepStrictEqual(result, { kind: "fixed", fixed: 1, remaining: 1 });
     assert.strictEqual(fs.readFileSync(path.join(folder, "nested", "a.yaml"), "utf8"), "a: 1\n");

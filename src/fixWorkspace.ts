@@ -6,7 +6,7 @@ export type FolderFixResult =
   | { kind: "failed"; message: string; output: string }
   | { kind: "cancelled" };
 
-const SUMMARY = /\((\d+) fixed, (\d+) remaining\)/;
+const SUMMARY = /^Found \d+ problems? \((\d+) fixed, (\d+) remaining\)/m;
 
 /**
  * Resolve `configPath` the way `ryl server` does: the server takes the path as-is,

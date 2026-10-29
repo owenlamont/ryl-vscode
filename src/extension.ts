@@ -151,7 +151,12 @@ async function fixAllWorkspace(): Promise<void> {
     return;
   }
   // The CLI writes to disk, so unsaved edits would conflict with its changes.
-  await vscode.workspace.saveAll(false);
+  if (!(await vscode.workspace.saveAll(false))) {
+    void vscode.window.showErrorMessage(
+      "ryl: could not save every open editor; nothing was fixed.",
+    );
+    return;
+  }
   // Mirror the server: one binary and one config path, from the window-level settings.
   const settings = getSettings();
   const ryl = await resolveRylPath(settings);
