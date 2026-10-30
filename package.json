@@ -2,7 +2,7 @@
   "name": "ryl",
   "displayName": "ryl - YAML Linter and Formatter",
   "description": "Fast YAML linter and formatter with real-time diagnostics, safe fixes, and formatting, powered by the ryl language server.",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "publisher": "owenlamont",
   "license": "MIT",
   "author": {
@@ -100,6 +100,20 @@
           "default": false,
           "scope": "resource",
           "markdownDescription": "Apply all ryl safe fixes when saving a YAML file. For finer control, prefer `\"editor.codeActionsOnSave\": { \"source.fixAll.ryl\": \"explicit\" }`."
+        },
+        "ryl.diagnosticMode": {
+          "type": "string",
+          "enum": [
+            "openFilesOnly",
+            "workspace"
+          ],
+          "enumDescriptions": [
+            "Report problems in open files only.",
+            "Also report problems in every `*.yaml`/`*.yml` file under the workspace folders, open or not."
+          ],
+          "default": "openFilesOnly",
+          "scope": "window",
+          "markdownDescription": "Which files ryl reports problems for: open files only, or every YAML file in the workspace. Before extension 0.5.0 ryl always scanned the workspace; set `workspace` to keep that. A `ryl` older than 0.27.0 from your environment ignores this setting and always scans the workspace."
         },
         "ryl.trace.server": {
           "type": "string",

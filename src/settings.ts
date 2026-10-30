@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 
 export type ImportStrategy = "fromEnvironment" | "useBundled";
+export type DiagnosticMode = "openFilesOnly" | "workspace";
 
 export interface RylSettings {
   enable: boolean;
@@ -8,6 +9,7 @@ export interface RylSettings {
   importStrategy: ImportStrategy;
   configPath: string;
   fixOnSave: boolean;
+  diagnosticMode: DiagnosticMode;
 }
 
 export function getSettings(scope?: vscode.ConfigurationScope): RylSettings {
@@ -18,22 +20,26 @@ export function getSettings(scope?: vscode.ConfigurationScope): RylSettings {
     importStrategy: config.get<ImportStrategy>("importStrategy", "fromEnvironment"),
     configPath: config.get<string>("configPath", "").trim(),
     fixOnSave: config.get<boolean>("fixOnSave", false),
+    diagnosticMode: config.get<DiagnosticMode>("diagnosticMode", "openFilesOnly"),
   };
 }
 
 /**
- * Options forwarded to `ryl server` at startup. Keys are camelCase to match the
- * server's `initializationOptions` parser (configPath / enable in src/lsp/mod.rs);
- * an incorrectly cased key is silently ignored, so keep these aligned with ryl.
+ * Options forwarded to `ryl server` at startup and, under a `ryl` section, in
+ * `workspace/didChangeConfiguration`. Keys are camelCase to match the server's
+ * settings parser (`Settings::from_options` in src/lsp/mod.rs), which resets any
+ * omitted key to its default, so always send the full set.
  */
 export interface RylInitializationOptions {
   configPath?: string;
   enable: boolean;
+  diagnosticMode: DiagnosticMode;
 }
 
 export function buildInitializationOptions(settings: RylSettings): RylInitializationOptions {
   return {
     configPath: settings.configPath || undefined,
     enable: settings.enable,
+    diagnosticMode: settings.diagnosticMode,
   };
 }

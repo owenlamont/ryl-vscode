@@ -6,6 +6,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0]
+
+### Added
+
+- `ryl.diagnosticMode` chooses which files ryl reports problems for:
+  `openFilesOnly` (default) or `workspace`. A change applies without restarting
+  the server.
+
+### Changed
+
+- Bundle ryl 0.27.0 (was 0.26.1). See its
+  [release notes](https://github.com/owenlamont/ryl/releases/tag/v0.27.0).
+- Problems now show for open files only, as Ruff's extension does; ryl used to
+  scan every YAML file in the workspace. To bring that back, set
+  `"ryl.diagnosticMode": "workspace"`.
+
 ## [0.4.0]
 
 ### Added
