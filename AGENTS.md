@@ -44,7 +44,8 @@ Keep the client thin: if a feature can be done in the server, it belongs there.
   - `binary.ts` - resolves which `ryl` to run (see precedence below) and restores
     the bundled binary's executable bit at runtime.
   - `settings.ts` - reads VS Code settings and builds the server's
-    `initializationOptions` (`configPath` / `enable`, camelCase to match ryl).
+    `initializationOptions` (`configPath` / `enable` / `diagnosticMode`, camelCase
+    to match ryl), also sent in `didChangeConfiguration` when `diagnosticMode` changes.
   - `constants.ts`, `logger.ts`.
   - `test/` - the `@vscode/test-electron` end-to-end suite and its fixtures.
 - **`scripts/download-ryl.mjs`** - downloads the pinned ryl release binary into

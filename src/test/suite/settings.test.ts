@@ -19,6 +19,7 @@ const DEFAULTS: RylSettings = {
   importStrategy: "fromEnvironment",
   configPath: "",
   fixOnSave: false,
+  diagnosticMode: "openFilesOnly",
 };
 
 suite("ryl binary resolution", () => {
@@ -91,7 +92,7 @@ suite("ryl settings and commands end-to-end", () => {
 
   suiteTeardown(async () => {
     const ryl = vscode.workspace.getConfiguration("ryl");
-    for (const key of ["enable", "path", "configPath", "trace.server"]) {
+    for (const key of ["enable", "path", "configPath", "diagnosticMode", "trace.server"]) {
       await ryl.update(key, undefined, vscode.ConfigurationTarget.Global);
     }
     for (const file of created) {
@@ -149,6 +150,31 @@ suite("ryl settings and commands end-to-end", () => {
     assert.ok(
       await waitForDiagnostics(doc.uri, (d) => d.length > 0),
       "diagnostics once re-enabled",
+    );
+  });
+
+  test("ryl.diagnosticMode workspace reports unopened files until reset", async () => {
+    const doc = await open("diagnostic-mode", TRAILING);
+    assert.ok(await waitForDiagnostics(doc.uri, (d) => d.length > 0), "the server is running");
+    const folder = vscode.workspace.workspaceFolders?.[0];
+    assert.ok(folder, "expected the fixtures directory as the workspace folder");
+    // Not `*.generated.*`: the workspace scan honours .gitignore, which lists those.
+    const unopened = vscode.Uri.joinPath(folder.uri, "diagnostic-mode-unopened.yaml");
+    fs.writeFileSync(unopened.fsPath, TRAILING);
+    created.push(unopened.fsPath);
+    assert.ok(
+      !(await waitForDiagnostics(unopened, (d) => d.length > 0, 3000)),
+      "openFilesOnly should not report an unopened file",
+    );
+    await setRyl("diagnosticMode", "workspace");
+    assert.ok(
+      await waitForDiagnostics(unopened, (d) => d.length > 0),
+      "workspace mode should report the unopened file",
+    );
+    await setRyl("diagnosticMode", undefined);
+    assert.ok(
+      await waitForDiagnostics(unopened, (d) => d.length === 0),
+      "resetting to openFilesOnly should clear the unopened file's diagnostics",
     );
   });
 
@@ -218,8 +244,9 @@ function rylDiagnostics(uri: vscode.Uri): vscode.Diagnostic[] {
 function waitForDiagnostics(
   uri: vscode.Uri,
   predicate: (diagnostics: vscode.Diagnostic[]) => boolean,
+  timeoutMs?: number,
 ): Promise<boolean> {
-  return waitForCondition(() => predicate(rylDiagnostics(uri)));
+  return waitForCondition(() => predicate(rylDiagnostics(uri)), timeoutMs);
 }
 
 function ruleOf(diagnostic: vscode.Diagnostic): string | number | undefined {

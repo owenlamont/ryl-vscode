@@ -1,10 +1,13 @@
 import * as vscode from "vscode";
-import type { LanguageClient } from "vscode-languageclient/node";
+import {
+  DidChangeConfigurationNotification,
+  type LanguageClient,
+} from "vscode-languageclient/node";
 import { resolveRylPath } from "./binary";
 import { disposeChannels, getServerChannel, startServer, stopServer } from "./client";
 import { fixFolder, resolveConfigPath } from "./fixWorkspace";
 import { disposeLogger, getLogChannel, initLogger, log } from "./logger";
-import { getSettings } from "./settings";
+import { buildInitializationOptions, getSettings } from "./settings";
 
 // Scope fix-all strictly to ryl's own action so a co-installed YAML fixer's
 // source.fixAll.<other> can never be applied by ryl.fixAll / fixOnSave.
@@ -40,6 +43,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (SERVER_SETTINGS.some((key) => event.affectsConfiguration(`ryl.${key}`))) {
         void runServer();
+      } else if (event.affectsConfiguration("ryl.diagnosticMode")) {
+        void updateServerSettings();
       }
     }),
     vscode.workspace.onDidChangeWorkspaceFolders(() => void runServer()),
@@ -101,6 +106,19 @@ async function runServer(): Promise<void> {
       await runServer();
     }
   }
+}
+
+/**
+ * Push the current settings to a running server without restarting it. A server
+ * mid-(re)start may have read its settings before this change, so restart instead.
+ */
+async function updateServerSettings(): Promise<void> {
+  if (!client || restartInProgress) {
+    return runServer();
+  }
+  await client.sendNotification(DidChangeConfigurationNotification.type, {
+    settings: { ryl: buildInitializationOptions(getSettings()) },
+  });
 }
 
 function handleWillSave(event: vscode.TextDocumentWillSaveEvent): void {

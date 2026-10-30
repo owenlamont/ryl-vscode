@@ -81,6 +81,7 @@ and shows a warning naming the rule and the setting to change. See ryl's
 | `ryl.importStrategy` | `fromEnvironment` | `fromEnvironment` prefers a ryl in your environment; `useBundled` always uses the bundled binary. |
 | `ryl.configPath` | `""` | Path to a ryl config file (`ryl.toml`, `.ryl.toml`, or a deprecated yamllint-style config). Empty uses normal config discovery. |
 | `ryl.fixOnSave` | `false` | Apply all safe fixes when saving a YAML file. |
+| `ryl.diagnosticMode` | `openFilesOnly` | `openFilesOnly` reports problems in open files; `workspace` also reports every `*.yaml`/`*.yml` file in the workspace, as ryl did before extension 0.5.0. Needs ryl 0.27.0 or later. |
 | `ryl.trace.server` | `off` | Trace the LSP traffic between VS Code and ryl. |
 
 ## Commands
