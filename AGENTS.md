@@ -161,12 +161,16 @@ silently break the language server.
 
 ## Publishing (manual prerequisites)
 
-CI publishes to the VS Marketplace and Open VSX on a tag, but requires one-time
-setup by the maintainer:
+CI publishes to the VS Marketplace and Open VSX on a tag through trusted
+publishing (GitHub OIDC), so no publish token is stored as a secret. Each
+registry holds a policy trusting `owenlamont/ryl-vscode` and the workflow file
+`release.yml`, with no environment; renaming that file breaks publishing until
+both policies are updated:
 
-- A VS Marketplace publisher named `owenlamont` and an Azure DevOps PAT stored as
-  the `VSCE_PAT` repository secret.
-- An Open VSX namespace `owenlamont` and a token stored as `OVSX_TOKEN`.
+- VS Marketplace: publisher `owenlamont`, **Trusted Publishing** tab at
+  <https://marketplace.visualstudio.com/manage/publishers/owenlamont/trustedpublishing>.
+- Open VSX: namespace `owenlamont`, extension `ryl`, at
+  <https://open-vsx.org/user-settings/trusted-publishers>.
 
 ## Development Environment
 
