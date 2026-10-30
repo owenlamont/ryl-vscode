@@ -116,9 +116,13 @@ async function updateServerSettings(): Promise<void> {
   if (!client || restartInProgress) {
     return runServer();
   }
-  await client.sendNotification(DidChangeConfigurationNotification.type, {
-    settings: { ryl: buildInitializationOptions(getSettings()) },
-  });
+  try {
+    await client.sendNotification(DidChangeConfigurationNotification.type, {
+      settings: { ryl: buildInitializationOptions(getSettings()) },
+    });
+  } catch (error) {
+    log(`Failed to send settings to the ryl server: ${String(error)}`);
+  }
 }
 
 function handleWillSave(event: vscode.TextDocumentWillSaveEvent): void {
