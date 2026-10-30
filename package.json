@@ -2,7 +2,7 @@
   "name": "ryl",
   "displayName": "ryl - YAML Linter and Formatter",
   "description": "Fast YAML linter and formatter with real-time diagnostics, safe fixes, and formatting, powered by the ryl language server.",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "publisher": "owenlamont",
   "license": "MIT",
   "author": {
