@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.2]
+
+### Changed
+
+- Bundle ryl 0.29.0 (was 0.28.0). See its
+  [release notes](https://github.com/owenlamont/ryl/releases/tag/v0.29.0).
+
 ## [0.5.1]
 
 ### Changed
