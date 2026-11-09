@@ -27,7 +27,7 @@
   "capabilities": {
     "untrustedWorkspaces": {
       "supported": "limited",
-      "description": "ryl runs a local executable. In untrusted workspaces it uses only the binary bundled with this extension and ignores workspace-configured executable and config paths.",
+      "description": "ryl runs a local executable. In untrusted workspaces it uses only the bundled binary, ignores workspace-configured executable and config paths, and runs ryl offline so remote schemas are never downloaded.",
       "restrictedConfigurations": [
         "ryl.path",
         "ryl.configPath"

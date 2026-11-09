@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Restricted Mode runs ryl with `RYL_OFFLINE=1`, so an untrusted
+  workspace cannot download remote schemas or raise approval prompts.
+
 ## [0.5.2]
 
 ### Changed
