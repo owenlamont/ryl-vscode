@@ -21,6 +21,7 @@ export function fixFolder(
   folder: string,
   configPath: string | undefined,
   signal?: AbortSignal,
+  env = process.env,
 ): Promise<FolderFixResult> {
   // parsable keeps a colour-forcing environment variable from injecting ANSI codes.
   const args = ["check", "--fix", "--output-format", "parsable", "."];
@@ -31,7 +32,7 @@ export function fixFolder(
     execFile(
       ryl,
       args,
-      { cwd: folder, signal, maxBuffer: 64 * 1024 * 1024 },
+      { cwd: folder, signal, env, maxBuffer: 64 * 1024 * 1024 },
       (error, stdout, stderr) => {
         if (signal?.aborted) {
           resolve({ kind: "cancelled" });

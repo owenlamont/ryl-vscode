@@ -4,6 +4,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import * as vscode from "vscode";
 import { resolveRylPath } from "../../binary";
+import { rylEnvironment } from "../../client";
 import { BUNDLED_RYL_PATH } from "../../constants";
 import type { RylSettings } from "../../settings";
 
@@ -253,3 +254,12 @@ function ruleOf(diagnostic: vscode.Diagnostic): string | number | undefined {
   const { code } = diagnostic;
   return typeof code === "object" ? code.value : code;
 }
+
+suite("ryl process environment", () => {
+  test("only Restricted Mode forces RYL_OFFLINE, leaving the user's environment intact", () => {
+    const env = { PATH: "/bin", RYL_OFFLINE: "0" };
+    assert.deepStrictEqual(rylEnvironment(false, env), { PATH: "/bin", RYL_OFFLINE: "1" });
+    assert.strictEqual(rylEnvironment(true, env), env);
+    assert.strictEqual(env.RYL_OFFLINE, "0");
+  });
+});
