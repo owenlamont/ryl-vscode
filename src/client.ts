@@ -31,6 +31,11 @@ function getTraceChannel(): vscode.OutputChannel {
   return traceChannel;
 }
 
+/** Restricted Mode runs ryl offline so an untrusted config cannot fetch remote schemas. */
+export function rylEnvironment(trusted: boolean, env = process.env): NodeJS.ProcessEnv {
+  return trusted ? env : { ...env, RYL_OFFLINE: "1" };
+}
+
 /** Build, start, and return a connected language client, or undefined if it failed to start. */
 export async function startServer(): Promise<LanguageClient | undefined> {
   const settings = getSettings();
@@ -41,7 +46,7 @@ export async function startServer(): Promise<LanguageClient | undefined> {
     args: [SERVER_SUBCOMMAND],
     options: {
       cwd: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? process.cwd(),
-      env: process.env,
+      env: rylEnvironment(vscode.workspace.isTrusted),
     },
   };
 

@@ -27,7 +27,7 @@
   "capabilities": {
     "untrustedWorkspaces": {
       "supported": "limited",
-      "description": "ryl runs a local executable. In untrusted workspaces it uses only the binary bundled with this extension and ignores workspace-configured executable and config paths.",
+      "description": "ryl runs a local executable. In untrusted workspaces it uses only the bundled binary, ignores workspace-configured executable and config paths, and runs ryl offline so remote schemas are never downloaded.",
       "restrictedConfigurations": [
         "ryl.path",
         "ryl.configPath"
@@ -182,7 +182,7 @@
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
-    "@types/node": "^26.6.5",
+    "@types/node": "^26.6.6",
     "@types/vscode": "1.82.0",
     "@types/which": "^3.0.4",
     "@vscode/test-cli": "^0.0.15",

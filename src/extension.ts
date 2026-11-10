@@ -4,7 +4,13 @@ import {
   type LanguageClient,
 } from "vscode-languageclient/node";
 import { resolveRylPath } from "./binary";
-import { disposeChannels, getServerChannel, startServer, stopServer } from "./client";
+import {
+  disposeChannels,
+  getServerChannel,
+  rylEnvironment,
+  startServer,
+  stopServer,
+} from "./client";
 import { fixFolder, resolveConfigPath } from "./fixWorkspace";
 import { disposeLogger, getLogChannel, initLogger, log } from "./logger";
 import { buildInitializationOptions, getSettings } from "./settings";
@@ -197,7 +203,13 @@ async function fixAllWorkspace(): Promise<void> {
       token.onCancellationRequested(() => abort.abort());
       for (const folder of folders) {
         progress.report({ message: folder.name });
-        const result = await fixFolder(ryl, folder.uri.fsPath, configPath, abort.signal);
+        const result = await fixFolder(
+          ryl,
+          folder.uri.fsPath,
+          configPath,
+          abort.signal,
+          rylEnvironment(vscode.workspace.isTrusted),
+        );
         if (result.kind === "cancelled") {
           return false;
         }

@@ -105,7 +105,9 @@ When `ryl.path` is empty, the extension resolves the executable in this order:
 5. The binary bundled with the extension.
 
 In an untrusted workspace the bundled binary is always used, and `ryl.path` /
-`ryl.configPath` are ignored.
+`ryl.configPath` are ignored. ryl also runs with `RYL_OFFLINE=1`, so
+remote JSON Schemas come from the cache only, with no downloads or approval
+prompts. Granting workspace trust restarts the server with your own environment.
 
 ## Configuration
 
