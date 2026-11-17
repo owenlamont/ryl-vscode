@@ -66,10 +66,12 @@ Keep the client thin: if a feature can be done in the server, it belongs there.
 - Build: `npm run compile` (esbuild); production `npm run package`. Type-check:
   `npm run check-types` (`tsc --noEmit`). Lint/format: `prek run --all-files`
   (Biome runs via its prek hook, not as an npm dependency).
-- `npm test` runs the suite in a real VS Code instance (downloaded to
-  `.vscode-test/`). It needs a display; on Linux/WSL it uses the ambient
-  `DISPLAY` (WSLg) or xvfb, and needs `ryl` resolvable (the suite uses
-  `--disable-workspace-trust` so the resolver reaches PATH or the bundled binary).
+- `npm test` runs the full suite in a trusted VS Code host, then the remote-schema
+  suite in Restricted Mode (downloaded to `.vscode-test/`). Both use the bundled
+  binary, so run `npm run download-ryl` first. The runner isolates user config,
+  schema cache and VS Code profiles in temporary directories. Approval tests fetch
+  `https://www.schemastore.org/bower.json`. A display is required; on Linux/WSL use
+  the ambient `DISPLAY` (WSLg) or `xvfb-run -a npm test`.
 
 ## Demo recording
 
