@@ -133,6 +133,13 @@ npm run download-ryl   # download the ryl binary into bundled/ for local runs
 npm test               # run the end-to-end suite in a real VS Code instance
 ```
 
+`npm test` runs the full suite in a trusted host, then the remote-schema suite in
+Restricted Mode, both using the bundled ryl. User configuration, schema caches and
+VS Code profiles use temporary directories. Approval tests fetch
+`https://www.schemastore.org/bower.json`; Restricted Mode must leave the cache absent,
+including when the origin is already granted. On headless Linux, use
+`xvfb-run -a npm test`.
+
 Press `F5` in VS Code to launch the extension in an Extension Development Host.
 Linting and formatting are managed by [prek](https://prek.j178.dev) and
 [Biome](https://biomejs.dev); run `prek run --all-files`.
