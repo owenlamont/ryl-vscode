@@ -25,14 +25,14 @@ hooks = [
 
 [[repos]]
 repo = "https://github.com/biomejs/pre-commit"
-rev = "v2.6.7"
+rev = "v2.6.8"
 hooks = [
   { id = "biome-check" },
 ]
 
 [[repos]]
 repo = "https://github.com/charliermarsh/ruff-pre-commit"
-rev = "v0.17.5"
+rev = "v0.17.6"
 hooks = [
   { id = "ruff-check", args = ["--fix", "--exit-non-zero-on-fix", "--show-fixes"], types_or = ["python", "pyi"] },
   { id = "ruff-format", types_or = ["python", "pyi"] },
@@ -40,7 +40,7 @@ hooks = [
 
 [[repos]]
 repo = "https://github.com/owenlamont/ryl-pre-commit"
-rev = "v0.29.0"
+rev = "v0.30.0"
 hooks = [
   { id = "ryl-check", args = ["--fix"] },
   { id = "ryl-check-markdown", args = ["--fix"] },
@@ -50,7 +50,7 @@ hooks = [
 
 [[repos]]
 repo = "https://github.com/rvben/rumdl-pre-commit"
-rev = "v0.3.4"
+rev = "v0.3.5"
 hooks = [
   { id = "rumdl" },
 ]
